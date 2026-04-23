@@ -41,6 +41,7 @@ import {
   isCharacterWeaponSpecialSelectable,
   isCharacterOptionCompatibleWithClass,
   isAndroidClassId,
+  resolveConditionalEffects,
   sortCharacterWeaponOptions,
   snapWeaponAttributeValue,
   type CharacterArmorOption,
@@ -217,14 +218,24 @@ export function useCharacterConfiguratorState() {
   const regularMaterialLimit = computed(() => getRegularMaterialLimit(form.classId))
   const regularMaterialStatMaximums = computed<Record<CharacterRegularMaterialKey, number>>(() => {
     const baseStats = currentLevelStats.value
+    const conditionalContext = {
+      weaponLabel: selectedWeapon.value?.label,
+      weaponType: selectedWeapon.value?.type,
+      weaponSpecial: selectedWeapon.value?.special,
+      armorLabel: selectedArmor.value?.label,
+      shieldLabel: selectedShield.value?.label,
+      unitLabels: selectedUnits.value.map((unit) => unit.label),
+      magLabel: undefined,
+    }
     const unitBonuses = selectedUnits.value.reduce(
       (totals, unit) => {
+        const conditional = resolveConditionalEffects(unit.conditionalEffects, conditionalContext).bonuses
         return {
-          atp: totals.atp + unit.bonuses.atp,
-          dfp: totals.dfp + unit.bonuses.dfp,
-          mst: totals.mst + unit.bonuses.mst,
-          evp: totals.evp + unit.bonuses.evp,
-          lck: totals.lck + unit.bonuses.lck,
+          atp: totals.atp + unit.bonuses.atp + conditional.atp,
+          dfp: totals.dfp + unit.bonuses.dfp + conditional.dfp,
+          mst: totals.mst + unit.bonuses.mst + conditional.mst,
+          evp: totals.evp + unit.bonuses.evp + conditional.evp,
+          lck: totals.lck + unit.bonuses.lck + conditional.lck,
         }
       },
       { atp: 0, dfp: 0, mst: 0, evp: 0, lck: 0 },

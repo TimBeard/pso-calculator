@@ -8,16 +8,11 @@
             <span>:</span>
           </div>
 
-          <div class="stats-row__value">
-            <OdometerNumber :value="String(row.equipped)" />
-            <span>{{ row.showBase ? ' (' : '  ' }}</span>
-          </div>
+          <div class="stats-row__value">{{ row.equipped + (row.showBase ? ` (` : '  ') }}</div>
 
           <div class="stats-row__base">
             <template v-if="row.showBase">
-              <span :class="{ 'stats-row__base-value--maxed': row.max !== null && row.base >= row.max }">
-                <OdometerNumber :value="String(row.base)" />
-              </span>)
+              <span :class="{ 'stats-row__base-value--maxed': row.max !== null && row.base >= row.max }">{{ row.base }}</span>)
             </template>
           </div>
         </li>
@@ -44,7 +39,6 @@
 
 <script setup lang="ts">
 import PlannerCard from '~/components/ui/PlannerCard.vue'
-import OdometerNumber from '~/components/ui/OdometerNumber.vue'
 
 defineProps<{
   hasSeededStats: boolean
