@@ -1,0 +1,24 @@
+{
+  "name": "pso-calculator",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace @pso/web",
+    "dev:api": "npm run dev --workspace @pso/api",
+    "build:shared": "npm run build --workspace @pso/shared",
+    "build:web": "npm run build:shared && npm run generate --workspace @pso/web",
+    "build:api": "npm run build:shared && npm run build --workspace @pso/api",
+    "build": "npm run build:api && npm run build:web",
+    "typecheck:web": "npm run typecheck --workspace @pso/web",
+    "typecheck:api": "npm run typecheck --workspace @pso/api",
+    "typecheck": "npm run typecheck:api && npm run typecheck:web"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

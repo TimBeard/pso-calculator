@@ -1,0 +1,49 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: pso_calculator_dev
+    volumes:
+      - mongo-dev-data:/data/db
+
+  api:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev --workspace @pso/api"
+    environment:
+      NUXT_TELEMETRY_DISABLED: "1"
+      NODE_ENV: development
+      PORT: 4000
+      MONGO_URI: mongodb://mongo:27017/pso_calculator_dev
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/app
+      - api-node-modules:/app/node_modules
+    depends_on:
+      - mongo
+
+  web:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev --workspace @pso/web"
+    environment:
+      NUXT_TELEMETRY_DISABLED: "1"
+      NUXT_PUBLIC_API_BASE_PATH: http://localhost:4000/api
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - web-node-modules:/app/node_modules
+    depends_on:
+      - api
+
+volumes:
+  mongo-dev-data:
+  api-node-modules:
+  web-node-modules:
