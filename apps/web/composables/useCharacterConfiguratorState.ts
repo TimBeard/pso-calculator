@@ -23,6 +23,8 @@ import {
   CHARACTER_CLASS_OPTIONS,
   DEFAULT_CHARACTER_CONFIG,
   DEFAULT_CHARACTER_WEAPON_ATTRIBUTES,
+  INITIAL_CLASS_LEVEL_STATS,
+  createCharacterOptionsResponse,
   FOMARL_OPTIMAL_CONFIG,
   FOMAR_OPTIMAL_CONFIG,
   FONEWEARL_OPTIMAL_CONFIG,
@@ -90,7 +92,6 @@ const fallbackOptions: CharacterOptionsResponse = {
 }
 
 export function useCharacterConfiguratorState() {
-  const runtimeConfig = useRuntimeConfig()
   const form = reactive<CharacterConfigInput>({
     ...DEFAULT_CHARACTER_CONFIG,
     materials: { ...DEFAULT_CHARACTER_CONFIG.materials },
@@ -105,11 +106,6 @@ export function useCharacterConfiguratorState() {
   const weaponAttributeErrorMessage = ref('')
   const magErrorMessage = ref('')
   const materialsErrorMessage = ref('')
-
-  const apiBasePath = computed(() => {
-    const configured = runtimeConfig.public.apiBasePath
-    return configured.endsWith('/') ? configured.slice(0, -1) : configured
-  })
 
   const classOptions = computed(() => options.value.classes)
   const difficultyOptions = computed<CharacterDifficultyOption[]>(() => options.value.difficulties ?? CHARACTER_DIFFICULTY_OPTIONS)
@@ -1021,48 +1017,37 @@ export function useCharacterConfiguratorState() {
     isApplyingRemoteConfig = true
 
     try {
-      const [remoteOptions, remoteConfig] = await Promise.all([
-        $fetch<CharacterOptionsResponse>(`${apiBasePath.value}/character-config/options`),
-        $fetch<{ config: CharacterConfigInput }>(`${apiBasePath.value}/character-config`),
-      ])
-
-      options.value = remoteOptions
-      form.classId = remoteConfig.config.classId
-      form.level = clampCharacterLevel(remoteConfig.config.level)
-      form.difficulty = remoteConfig.config.difficulty ?? DEFAULT_CHARACTER_CONFIG.difficulty
-      form.gameMode = remoteConfig.config.gameMode ?? DEFAULT_CHARACTER_CONFIG.gameMode
-      form.attackType = remoteConfig.config.attackType ?? DEFAULT_CHARACTER_CONFIG.attackType
+      options.value = createCharacterOptionsResponse()
+      form.classId = DEFAULT_CHARACTER_CONFIG.classId
+      form.level = clampCharacterLevel(DEFAULT_CHARACTER_CONFIG.level)
+      form.difficulty = DEFAULT_CHARACTER_CONFIG.difficulty
+      form.gameMode = DEFAULT_CHARACTER_CONFIG.gameMode
+      form.attackType = DEFAULT_CHARACTER_CONFIG.attackType
       form.shiftaLevel = DEFAULT_CHARACTER_CONFIG.shiftaLevel
       form.zalureLevel = DEFAULT_CHARACTER_CONFIG.zalureLevel
-      form.weaponId = remoteConfig.config.weaponId ?? DEFAULT_CHARACTER_CONFIG.weaponId
-      form.specialId = remoteConfig.config.specialId ?? DEFAULT_CHARACTER_CONFIG.specialId
-      form.grind = remoteConfig.config.grind ?? DEFAULT_CHARACTER_CONFIG.grind
-      form.armorId = remoteConfig.config.armorId ?? DEFAULT_CHARACTER_CONFIG.armorId
+      form.weaponId = DEFAULT_CHARACTER_CONFIG.weaponId
+      form.specialId = DEFAULT_CHARACTER_CONFIG.specialId
+      form.grind = DEFAULT_CHARACTER_CONFIG.grind
+      form.armorId = DEFAULT_CHARACTER_CONFIG.armorId
       const armorBounds = getArmorBounds(form.armorId)
-      form.armorDfp = remoteConfig.config.armorDfp ?? armorBounds.dfpMax
-      form.armorEvp = remoteConfig.config.armorEvp ?? armorBounds.evpMax
+      form.armorDfp = armorBounds.dfpMax
+      form.armorEvp = armorBounds.evpMax
       previousArmorId = form.armorId
-      form.shieldId = remoteConfig.config.shieldId ?? DEFAULT_CHARACTER_CONFIG.shieldId
+      form.shieldId = DEFAULT_CHARACTER_CONFIG.shieldId
       const shieldBounds = getShieldBounds(form.shieldId)
-      form.shieldDfp = remoteConfig.config.shieldDfp ?? shieldBounds.dfpMax
-      form.shieldEvp = remoteConfig.config.shieldEvp ?? shieldBounds.evpMax
+      form.shieldDfp = shieldBounds.dfpMax
+      form.shieldEvp = shieldBounds.evpMax
       previousShieldId = form.shieldId
-      form.magDef = remoteConfig.config.magDef ?? DEFAULT_CHARACTER_CONFIG.magDef
-      form.magPow = remoteConfig.config.magPow ?? DEFAULT_CHARACTER_CONFIG.magPow
-      form.magDex = remoteConfig.config.magDex ?? DEFAULT_CHARACTER_CONFIG.magDex
-      form.magMind = remoteConfig.config.magMind ?? DEFAULT_CHARACTER_CONFIG.magMind
-      form.materials = {
-        ...DEFAULT_CHARACTER_CONFIG.materials,
-        ...remoteConfig.config.materials,
-      }
-      form.unitSlot1Id = remoteConfig.config.unitSlot1Id ?? DEFAULT_CHARACTER_CONFIG.unitSlot1Id
-      form.unitSlot2Id = remoteConfig.config.unitSlot2Id ?? DEFAULT_CHARACTER_CONFIG.unitSlot2Id
-      form.unitSlot3Id = remoteConfig.config.unitSlot3Id ?? DEFAULT_CHARACTER_CONFIG.unitSlot3Id
-      form.unitSlot4Id = remoteConfig.config.unitSlot4Id ?? DEFAULT_CHARACTER_CONFIG.unitSlot4Id
-      form.weaponAttributes = {
-        ...DEFAULT_CHARACTER_WEAPON_ATTRIBUTES,
-        ...remoteConfig.config.weaponAttributes,
-      }
+      form.magDef = DEFAULT_CHARACTER_CONFIG.magDef
+      form.magPow = DEFAULT_CHARACTER_CONFIG.magPow
+      form.magDex = DEFAULT_CHARACTER_CONFIG.magDex
+      form.magMind = DEFAULT_CHARACTER_CONFIG.magMind
+      form.materials = { ...DEFAULT_CHARACTER_CONFIG.materials }
+      form.unitSlot1Id = DEFAULT_CHARACTER_CONFIG.unitSlot1Id
+      form.unitSlot2Id = DEFAULT_CHARACTER_CONFIG.unitSlot2Id
+      form.unitSlot3Id = DEFAULT_CHARACTER_CONFIG.unitSlot3Id
+      form.unitSlot4Id = DEFAULT_CHARACTER_CONFIG.unitSlot4Id
+      form.weaponAttributes = { ...DEFAULT_CHARACTER_WEAPON_ATTRIBUTES }
 
       if (form.classId === 'humar') {
         applyHumarOptimizedConfig()
@@ -1125,8 +1110,7 @@ export function useCharacterConfiguratorState() {
     statsErrorMessage.value = ''
 
     try {
-      const response = await $fetch<{ stats: ClassLevelStats[] }>(`${apiBasePath.value}/class-level-stats/${classId}`)
-      classLevelStats.value = response.stats
+      classLevelStats.value = INITIAL_CLASS_LEVEL_STATS.filter((entry) => entry.classId === classId)
     } catch (error) {
       classLevelStats.value = []
       statsErrorMessage.value = error instanceof Error ? error.message : 'Impossible de charger les stats du personnage.'

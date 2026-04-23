@@ -1,12 +1,13 @@
+const baseURL = process.env.NUXT_APP_BASE_URL ?? '/'
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-04-16',
   devtools: { enabled: false },
   ssr: false,
   css: ['~/assets/css/main.css'],
-  runtimeConfig: {
-    public: {
-      apiBasePath: process.env.NUXT_PUBLIC_API_BASE_PATH ?? 'http://localhost:4000/api',
-    },
+  app: {
+    baseURL,
+    buildAssetsDir: '/_nuxt/',
   },
   build: {
     transpile: ['@pso/shared'],
@@ -14,6 +15,7 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       routes: ['/'],
+      failOnError: false,
     },
   },
   typescript: {
