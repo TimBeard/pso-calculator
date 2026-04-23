@@ -60,6 +60,7 @@ import {
   type ClassLevelStats,
 } from '@pso/shared'
 import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
+import { CHARACTER_CONFIG_URL_PARAM, decodeCharacterConfig, encodeCharacterConfig } from './useCharacterConfigUrlCodec'
 
 const fallbackOptions: CharacterOptionsResponse = {
   classes: [...CHARACTER_CLASS_OPTIONS],
@@ -734,7 +735,7 @@ export function useCharacterConfiguratorState() {
   watch(
     () => form.classId,
     (classId, previousClassId) => {
-      if (previousClassId !== undefined && previousClassId !== classId) {
+      if (!isApplyingRemoteConfig && previousClassId !== undefined && previousClassId !== classId) {
         applyBaseConfigForClass(classId)
       }
 
@@ -778,6 +779,12 @@ export function useCharacterConfiguratorState() {
       form.unitSlot3Id = DEFAULT_CHARACTER_CONFIG.unitSlot3Id
       form.unitSlot4Id = DEFAULT_CHARACTER_CONFIG.unitSlot4Id
       form.weaponAttributes = { ...DEFAULT_CHARACTER_WEAPON_ATTRIBUTES }
+
+      const sharedConfig = readSharedConfigFromUrl()
+
+      if (sharedConfig) {
+        applyCharacterConfig(sharedConfig)
+      }
     } catch (error) {
       errorMessage.value = error instanceof Error ? error.message : "Impossible de joindre l'API pour charger le POC."
     } finally {
@@ -785,6 +792,95 @@ export function useCharacterConfiguratorState() {
       await nextTick()
       isApplyingRemoteConfig = false
     }
+  }
+
+  function readSharedConfigFromUrl(): CharacterConfigInput | null {
+    if (typeof window === 'undefined') {
+      return null
+    }
+
+    const encoded = new URL(window.location.href).searchParams.get(CHARACTER_CONFIG_URL_PARAM)
+
+    if (!encoded) {
+      return null
+    }
+
+    return decodeCharacterConfig(encoded)
+  }
+
+  function applyCharacterConfig(config: CharacterConfigInput): void {
+    form.classId = config.classId
+    form.level = config.level
+    form.difficulty = config.difficulty
+    form.gameMode = config.gameMode
+    form.attackType = config.attackType
+    form.shiftaLevel = config.shiftaLevel
+    form.zalureLevel = config.zalureLevel
+    form.weaponId = config.weaponId
+    form.specialId = config.specialId
+    form.grind = config.grind
+    form.weaponAttributes = { ...config.weaponAttributes }
+    form.armorId = config.armorId
+    form.armorDfp = config.armorDfp
+    form.armorEvp = config.armorEvp
+    previousArmorId = config.armorId
+    form.shieldId = config.shieldId
+    form.shieldDfp = config.shieldDfp
+    form.shieldEvp = config.shieldEvp
+    previousShieldId = config.shieldId
+    form.magDef = config.magDef
+    form.magPow = config.magPow
+    form.magDex = config.magDex
+    form.magMind = config.magMind
+    form.materials = { ...config.materials }
+    form.unitSlot1Id = config.unitSlot1Id
+    form.unitSlot2Id = config.unitSlot2Id
+    form.unitSlot3Id = config.unitSlot3Id
+    form.unitSlot4Id = config.unitSlot4Id
+    previousWeaponId = config.weaponId
+  }
+
+  function syncConfigToUrl(): void {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const url = new URL(window.location.href)
+    const encoded = encodeCharacterConfig({
+      classId: form.classId,
+      level: form.level,
+      difficulty: form.difficulty,
+      gameMode: form.gameMode,
+      attackType: form.attackType,
+      shiftaLevel: form.shiftaLevel,
+      zalureLevel: form.zalureLevel,
+      weaponId: form.weaponId,
+      specialId: form.specialId,
+      grind: form.grind,
+      weaponAttributes: { ...form.weaponAttributes },
+      armorId: form.armorId,
+      armorDfp: form.armorDfp,
+      armorEvp: form.armorEvp,
+      shieldId: form.shieldId,
+      shieldDfp: form.shieldDfp,
+      shieldEvp: form.shieldEvp,
+      magDef: form.magDef,
+      magPow: form.magPow,
+      magDex: form.magDex,
+      magMind: form.magMind,
+      materials: { ...form.materials },
+      unitSlot1Id: form.unitSlot1Id,
+      unitSlot2Id: form.unitSlot2Id,
+      unitSlot3Id: form.unitSlot3Id,
+      unitSlot4Id: form.unitSlot4Id,
+    })
+
+    if (url.searchParams.get(CHARACTER_CONFIG_URL_PARAM) === encoded) {
+      return
+    }
+
+    url.searchParams.set(CHARACTER_CONFIG_URL_PARAM, encoded)
+    window.history.replaceState(window.history.state, '', url.toString())
   }
 
   async function loadClassStats(classId: CharacterConfigInput['classId']): Promise<void> {
@@ -802,7 +898,19 @@ export function useCharacterConfiguratorState() {
   }
 
   onMounted(() => {
-    void loadConfigurator()
+    void loadConfigurator().then(() => {
+      watch(
+        () => form,
+        () => {
+          if (isApplyingRemoteConfig || isLoading.value) {
+            return
+          }
+
+          syncConfigToUrl()
+        },
+        { deep: true },
+      )
+    })
   })
 
   return {
