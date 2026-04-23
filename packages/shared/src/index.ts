@@ -3800,8 +3800,8 @@ export const CHARACTER_WEAPON_ATTRIBUTE_LIMITS = {
 } as const
 
 export const DEFAULT_CHARACTER_WEAPON_ATTRIBUTES: CharacterWeaponAttributes = {
-  enemy: 100,
-  hit: 100,
+  enemy: 0,
+  hit: 0,
 }
 
 export const CHARACTER_WEAPON_ATTRIBUTE_OPTIONS: CharacterWeaponAttributeOption[] = [
@@ -3958,395 +3958,62 @@ export function clampCharacterCappedStat(classId: CharacterClassId, stat: Charac
   return Math.min(value, maximum)
 }
 
-// Optimized HUmar level-200 config (247/250 regular materials, 1 Heavenly/Ability, 0 Centurion).
-// MAG: DEF 5, POW 147, DEX 48, MIND 0 (total 200)
-// Results (caps all 6): ATP 1397, DFP 579, MST 732, ATA 200, EVP 756, LCK 100
-export const HUMAR_OPTIMAL_CONFIG = {
-  weaponId: 'galatine',
-  grind: 9,
-  armorId: 'aura_field',
-  armorDfp: 285,
-  armorEvp: 154,
-  shieldId: 'red_ring',
-  shieldDfp: 235,
-  shieldEvp: 257,
-  magDef: 5,
-  magPow: 147,
-  magDex: 48,
-  magMind: 0,
-  materials: {
-    hp: CHARACTER_MATERIAL_LIMITS.hpMax,
-    tp: CHARACTER_MATERIAL_LIMITS.tpMax,
-    power: 68,
-    def: 64,
-    mind: 57,
-    evade: 25,
-    luck: 33,
-  },
-  unitSlot1Id: 'heavenly_ability',
-  unitSlot2Id: 'none',
-  unitSlot3Id: 'none',
-  unitSlot4Id: 'none',
-} as const satisfies Partial<CharacterConfigInput>
+const HUNTER_BASE_WEAPON_ID = 'saber'
+const RANGER_BASE_WEAPON_ID = 'handgun'
+const FORCE_BASE_WEAPON_ID = 'cane'
 
-// Optimized HUnewearl level-200 config (142/150 regular materials, 2 Centurion + 2 Heavenly/Ability).
-// MAG: DEF 5, POW 113, DEX 82, MIND 0 (total 200)
-// Results (caps all 6): ATP 1237, DFP 589, MST 1177, ATA 199, EVP 811, LCK 100
-// Note: HUnewearl requires 2 Centurion to all-cap within the 150 newman regular-material cap.
-export const HUNEWEARL_OPTIMAL_CONFIG = {
-  weaponId: 'galatine',
-  grind: 9,
-  armorId: 'aura_field',
-  armorDfp: 285,
-  armorEvp: 154,
-  shieldId: 'red_ring',
-  shieldDfp: 235,
-  shieldEvp: 257,
-  magDef: 5,
-  magPow: 113,
-  magDex: 82,
-  magMind: 0,
-  materials: {
-    hp: CHARACTER_MATERIAL_LIMITS.hpMax,
-    tp: CHARACTER_MATERIAL_LIMITS.tpMax,
-    power: 33,
-    def: 0,
-    mind: 91,
-    evade: 18,
-    luck: 0,
-  },
-  unitSlot1Id: 'centurion_ability',
-  unitSlot2Id: 'centurion_ability',
-  unitSlot3Id: 'heavenly_ability',
-  unitSlot4Id: 'heavenly_ability',
-} as const satisfies Partial<CharacterConfigInput>
+export function getBaseWeaponIdForCharacterClass(classId: CharacterClassId): string {
+  if ((HUNTER_CHARACTER_CLASS_IDS as readonly CharacterClassId[]).includes(classId)) {
+    return HUNTER_BASE_WEAPON_ID
+  }
 
-// Optimized HUcast level-200 config (137/150 regular materials, 2 Heavenly/Ability, 0 Centurion).
-// MAG: DEF 5, POW 141, DEX 54, MIND 0 (total 200)
-// Results (caps all 6): ATP 1639, DFP 601, MST 0, ATA 191, EVP 660, LCK 100
-export const HUCAST_OPTIMAL_CONFIG = {
-  weaponId: 'galatine',
-  grind: 9,
-  armorId: 'luminous_field',
-  armorDfp: 256,
-  armorEvp: 144,
-  shieldId: 'red_ring',
-  shieldDfp: 235,
-  shieldEvp: 257,
-  magDef: 5,
-  magPow: 141,
-  magDex: 54,
-  magMind: 0,
-  materials: {
-    hp: CHARACTER_MATERIAL_LIMITS.hpMax,
-    tp: 0,
-    power: 81,
-    def: 23,
-    mind: 0,
-    evade: 13,
-    luck: 20,
-  },
-  unitSlot1Id: 'heavenly_ability',
-  unitSlot2Id: 'heavenly_ability',
-  unitSlot3Id: 'none',
-  unitSlot4Id: 'none',
-} as const satisfies Partial<CharacterConfigInput>
+  if ((RANGER_CHARACTER_CLASS_IDS as readonly CharacterClassId[]).includes(classId)) {
+    return RANGER_BASE_WEAPON_ID
+  }
 
-// Optimized HUcaseal level-200 config (119/150 regular materials, 2 Heavenly/Ability, 0 Centurion).
-// MAG: DEF 5, POW 137, DEX 58, MIND 0 (total 200)
-// Results (caps all 6): ATP 1301, DFP 525, MST 0, ATA 218, EVP 877, LCK 100
-export const HUCASEAL_OPTIMAL_CONFIG = {
-  weaponId: 'galatine',
-  grind: 9,
-  armorId: 'love_heart',
-  armorDfp: 246,
-  armorEvp: 160,
-  shieldId: 'red_ring',
-  shieldDfp: 235,
-  shieldEvp: 257,
-  magDef: 5,
-  magPow: 137,
-  magDex: 58,
-  magMind: 0,
-  materials: {
-    hp: CHARACTER_MATERIAL_LIMITS.hpMax,
-    tp: 0,
-    power: 38,
-    def: 36,
-    mind: 0,
-    evade: 25,
-    luck: 20,
-  },
-  unitSlot1Id: 'heavenly_ability',
-  unitSlot2Id: 'heavenly_ability',
-  unitSlot3Id: 'none',
-  unitSlot4Id: 'none',
-} as const satisfies Partial<CharacterConfigInput>
-
-// Optimized RAmar level-200 config (244/250 regular materials, 1 Heavenly/Ability, 0 Centurion).
-// MAG: DEF 5, POW 161, DEX 34, MIND 0 (total 200)
-// Results (caps all 6): ATP 1260, DFP 515, MST 665, ATA 249, EVP 715, LCK 100
-export const RAMAR_OPTIMAL_CONFIG = {
-  weaponId: 'galatine',
-  grind: 9,
-  armorId: 'aura_field',
-  armorDfp: 285,
-  armorEvp: 154,
-  shieldId: 'red_ring',
-  shieldDfp: 235,
-  shieldEvp: 257,
-  magDef: 5,
-  magPow: 161,
-  magDex: 34,
-  magMind: 0,
-  materials: {
-    hp: CHARACTER_MATERIAL_LIMITS.hpMax,
-    tp: CHARACTER_MATERIAL_LIMITS.tpMax,
-    power: 54,
-    def: 63,
-    mind: 68,
-    evade: 26,
-    luck: 33,
-  },
-  unitSlot1Id: 'heavenly_ability',
-  unitSlot2Id: 'none',
-  unitSlot3Id: 'none',
-  unitSlot4Id: 'none',
-} as const satisfies Partial<CharacterConfigInput>
-
-// Optimized RAmarl level-200 config (240/250 regular materials, 2 Heavenly/Ability, 0 Centurion).
-// MAG: DEF 5, POW 155, DEX 40, MIND 0 (total 200)
-// Results (caps all 6): ATP 1145, DFP 577, MST 1031, ATA 241, EVP 900, LCK 100
-export const RAMARL_OPTIMAL_CONFIG = {
-  weaponId: 'galatine',
-  grind: 9,
-  armorId: 'aura_field',
-  armorDfp: 285,
-  armorEvp: 154,
-  shieldId: 'red_ring',
-  shieldDfp: 235,
-  shieldEvp: 257,
-  magDef: 5,
-  magPow: 155,
-  magDex: 40,
-  magMind: 0,
-  materials: {
-    hp: CHARACTER_MATERIAL_LIMITS.hpMax,
-    tp: CHARACTER_MATERIAL_LIMITS.tpMax,
-    power: 21,
-    def: 48,
-    mind: 125,
-    evade: 26,
-    luck: 20,
-  },
-  unitSlot1Id: 'heavenly_ability',
-  unitSlot2Id: 'heavenly_ability',
-  unitSlot3Id: 'none',
-  unitSlot4Id: 'none',
-} as const satisfies Partial<CharacterConfigInput>
-
-// Optimized RAcast level-200 config (121/150 regular materials, 2 Heavenly/Ability, 0 Centurion).
-// MAG: DEF 5, POW 155, DEX 40, MIND 0 (total 200)
-// Results (caps all 6): ATP 1350, DFP 606, MST 0, ATA 224, EVP 699, LCK 100
-export const RACAST_OPTIMAL_CONFIG = {
-  weaponId: 'galatine',
-  grind: 9,
-  armorId: 'luminous_field',
-  armorDfp: 256,
-  armorEvp: 144,
-  shieldId: 'red_ring',
-  shieldDfp: 235,
-  shieldEvp: 257,
-  magDef: 5,
-  magPow: 155,
-  magDex: 40,
-  magMind: 0,
-  materials: {
-    hp: CHARACTER_MATERIAL_LIMITS.hpMax,
-    tp: 0,
-    power: 66,
-    def: 23,
-    mind: 0,
-    evade: 12,
-    luck: 20,
-  },
-  unitSlot1Id: 'heavenly_ability',
-  unitSlot2Id: 'heavenly_ability',
-  unitSlot3Id: 'none',
-  unitSlot4Id: 'none',
-} as const satisfies Partial<CharacterConfigInput>
-
-// Optimized RAcaseal level-200 config (141/150 regular materials, 1 Heavenly/Ability, 0 Centurion).
-// MAG: DEF 5, POW 153, DEX 42, MIND 0 (total 200)
-// Results (caps all 6): ATP 1175, DFP 688, MST 0, ATA 231, EVP 787, LCK 100
-export const RACASEAL_OPTIMAL_CONFIG = {
-  weaponId: 'galatine',
-  grind: 9,
-  armorId: 'love_heart',
-  armorDfp: 246,
-  armorEvp: 160,
-  shieldId: 'red_ring',
-  shieldDfp: 235,
-  shieldEvp: 257,
-  magDef: 5,
-  magPow: 153,
-  magDex: 42,
-  magMind: 0,
-  materials: {
-    hp: CHARACTER_MATERIAL_LIMITS.hpMax,
-    tp: 0,
-    power: 35,
-    def: 48,
-    mind: 0,
-    evade: 25,
-    luck: 33,
-  },
-  unitSlot1Id: 'heavenly_ability',
-  unitSlot2Id: 'none',
-  unitSlot3Id: 'none',
-  unitSlot4Id: 'none',
-} as const satisfies Partial<CharacterConfigInput>
-
-// Optimized FOmar level-200 config (215/250 regular materials, 2 Heavenly/Ability, 0 Centurion).
-// MAG: DEF 5, POW 100, DEX 40, MIND 55 (total 200)
-// Results (caps all 6): ATP 1002, DFP 470, MST 1340, ATA 163, EVP 651, LCK 100
-export const FOMAR_OPTIMAL_CONFIG = {
-  weaponId: 'galatine',
-  grind: 9,
-  armorId: 'aura_field',
-  armorDfp: 285,
-  armorEvp: 154,
-  shieldId: 'red_ring',
-  shieldDfp: 235,
-  shieldEvp: 257,
-  magDef: 5,
-  magPow: 100,
-  magDex: 40,
-  magMind: 55,
-  materials: {
-    hp: CHARACTER_MATERIAL_LIMITS.hpMax,
-    tp: CHARACTER_MATERIAL_LIMITS.tpMax,
-    power: 0,
-    def: 47,
-    mind: 123,
-    evade: 25,
-    luck: 20,
-  },
-  unitSlot1Id: 'heavenly_ability',
-  unitSlot2Id: 'heavenly_ability',
-  unitSlot3Id: 'none',
-  unitSlot4Id: 'none',
-} as const satisfies Partial<CharacterConfigInput>
-
-// Optimized FOmarl level-200 config (238/250 regular materials, 1 Heavenly/Ability, 0 Centurion).
-// MAG: DEF 5, POW 63, DEX 48, MIND 84 (total 200)
-// Results (caps all 6): ATP 872, DFP 498, MST 1284, ATA 170, EVP 588, LCK 100
-export const FOMARL_OPTIMAL_CONFIG = {
-  weaponId: 'galatine',
-  grind: 9,
-  armorId: 'aura_field',
-  armorDfp: 285,
-  armorEvp: 154,
-  shieldId: 'red_ring',
-  shieldDfp: 235,
-  shieldEvp: 257,
-  magDef: 5,
-  magPow: 63,
-  magDex: 48,
-  magMind: 84,
-  materials: {
-    hp: CHARACTER_MATERIAL_LIMITS.hpMax,
-    tp: CHARACTER_MATERIAL_LIMITS.tpMax,
-    power: 0,
-    def: 59,
-    mind: 121,
-    evade: 25,
-    luck: 33,
-  },
-  unitSlot1Id: 'heavenly_ability',
-  unitSlot2Id: 'none',
-  unitSlot3Id: 'none',
-  unitSlot4Id: 'none',
-} as const satisfies Partial<CharacterConfigInput>
-
-// Optimized FOnewm level-200 config (145/150 regular materials, 4 Heavenly/Ability, 0 Centurion).
-// Weapon: Earth Wand: Brownie grind 20 (ATP 410-710, ATA 59, MST +50, Gush special).
-// MAG: DEF 5, POW 51, DEX 84, MIND 60 (total 200)
-// Results (caps all 6): ATP 814, DFP 463, MST 1500, ATA 180, EVP 679, LCK 100
-export const FONEWM_OPTIMAL_CONFIG = {
-  weaponId: 'earth_wand_brownie',
-  grind: 20,
-  armorId: 'aura_field',
-  armorDfp: 285,
-  armorEvp: 154,
-  shieldId: 'red_ring',
-  shieldDfp: 235,
-  shieldEvp: 257,
-  magDef: 5,
-  magPow: 51,
-  magDex: 84,
-  magMind: 60,
-  materials: {
-    hp: CHARACTER_MATERIAL_LIMITS.hpMax,
-    tp: CHARACTER_MATERIAL_LIMITS.tpMax,
-    power: 0,
-    def: 0,
-    mind: 121,
-    evade: 24,
-    luck: 0,
-  },
-  unitSlot1Id: 'heavenly_ability',
-  unitSlot2Id: 'heavenly_ability',
-  unitSlot3Id: 'heavenly_ability',
-  unitSlot4Id: 'heavenly_ability',
-} as const satisfies Partial<CharacterConfigInput>
-
-// Optimized FOnewearl level-200 config (150/150 regular materials, 4 Heavenly/Ability, 0 Centurion).
-// Weapon: Earth Wand: Brownie grind 20 (ATP 410-710, ATA 59, MST +50, Gush special).
-// Best caster wand for FOnewearl: highest ATP among rods/wands compatible, +50 MST boosts techs.
-// MAG: DEF 5, POW 0, DEX 86, MIND 109 (total 200)
-// Results: ATP 583, DFP 390, MST 1661 (cap 2750 mathematically unreachable), ATA 186, EVP 883, LCK 100 — 5/6 caps.
-export const FONEWEARL_OPTIMAL_CONFIG = {
-  weaponId: 'earth_wand_brownie',
-  grind: 20,
-  armorId: 'aura_field',
-  armorDfp: 285,
-  armorEvp: 154,
-  shieldId: 'red_ring',
-  shieldDfp: 235,
-  shieldEvp: 257,
-  magDef: 5,
-  magPow: 0,
-  magDex: 86,
-  magMind: 109,
-  materials: {
-    hp: CHARACTER_MATERIAL_LIMITS.hpMax,
-    tp: CHARACTER_MATERIAL_LIMITS.tpMax,
-    power: 0,
-    def: 0,
-    mind: 126,
-    evade: 24,
-    luck: 0,
-  },
-  unitSlot1Id: 'heavenly_ability',
-  unitSlot2Id: 'heavenly_ability',
-  unitSlot3Id: 'heavenly_ability',
-  unitSlot4Id: 'heavenly_ability',
-} as const satisfies Partial<CharacterConfigInput>
-
-export const DEFAULT_CHARACTER_CONFIG: CharacterConfigInput = {
-  classId: 'humar',
-  level: CHARACTER_LEVEL_LIMITS.max,
-  difficulty: 'ultimate',
-  gameMode: 'normal',
-  attackType: 'normal',
-  shiftaLevel: 0,
-  zalureLevel: 0,
-  specialId: 'none',
-  weaponAttributes: { ...DEFAULT_CHARACTER_WEAPON_ATTRIBUTES },
-  ...HUMAR_OPTIMAL_CONFIG,
-  materials: { ...HUMAR_OPTIMAL_CONFIG.materials },
+  return FORCE_BASE_WEAPON_ID
 }
+
+export function createBaseCharacterConfigForClass(classId: CharacterClassId): CharacterConfigInput {
+  return {
+    classId,
+    level: CHARACTER_LEVEL_LIMITS.min,
+    difficulty: 'normal',
+    gameMode: 'normal',
+    attackType: 'normal',
+    shiftaLevel: 0,
+    zalureLevel: 0,
+    weaponId: getBaseWeaponIdForCharacterClass(classId),
+    specialId: 'none',
+    grind: 0,
+    weaponAttributes: { ...DEFAULT_CHARACTER_WEAPON_ATTRIBUTES },
+    armorId: 'frame',
+    armorDfp: 0,
+    armorEvp: 0,
+    shieldId: 'none',
+    shieldDfp: 0,
+    shieldEvp: 0,
+    magDef: CHARACTER_MAG_LIMITS.defMin,
+    magPow: CHARACTER_MAG_LIMITS.powMin,
+    magDex: CHARACTER_MAG_LIMITS.dexMin,
+    magMind: CHARACTER_MAG_LIMITS.mindMin,
+    materials: {
+      hp: 0,
+      tp: 0,
+      power: 0,
+      def: 0,
+      mind: 0,
+      evade: 0,
+      luck: 0,
+    },
+    unitSlot1Id: 'none',
+    unitSlot2Id: 'none',
+    unitSlot3Id: 'none',
+    unitSlot4Id: 'none',
+  }
+}
+
+export const DEFAULT_CHARACTER_CONFIG: CharacterConfigInput = createBaseCharacterConfigForClass('humar')
 
 const weaponAttributeSchema = z
   .number()

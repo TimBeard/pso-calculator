@@ -24,19 +24,8 @@ import {
   DEFAULT_CHARACTER_CONFIG,
   DEFAULT_CHARACTER_WEAPON_ATTRIBUTES,
   INITIAL_CLASS_LEVEL_STATS,
+  createBaseCharacterConfigForClass,
   createCharacterOptionsResponse,
-  FOMARL_OPTIMAL_CONFIG,
-  FOMAR_OPTIMAL_CONFIG,
-  FONEWEARL_OPTIMAL_CONFIG,
-  FONEWM_OPTIMAL_CONFIG,
-  HUCASEAL_OPTIMAL_CONFIG,
-  HUCAST_OPTIMAL_CONFIG,
-  HUNEWEARL_OPTIMAL_CONFIG,
-  HUMAR_OPTIMAL_CONFIG,
-  RACASEAL_OPTIMAL_CONFIG,
-  RACAST_OPTIMAL_CONFIG,
-  RAMARL_OPTIMAL_CONFIG,
-  RAMAR_OPTIMAL_CONFIG,
   clampCharacterLevel,
   clampCharacterCappedStat,
   clampWeaponAttributeValue,
@@ -190,13 +179,13 @@ export function useCharacterConfiguratorState() {
   const selectedWeaponHasSelectableSpecial = computed(() => isCharacterWeaponSpecialSelectable(selectedWeaponSpecialLabel.value))
   const selectedWeaponHasNoSpecial = computed(() => isCharacterWeaponSpecialNone(selectedWeaponSpecialLabel.value))
   const currentWeaponMaxGrind = computed(() => selectedWeapon.value?.maxGrind ?? 0)
-  const currentArmorDfpMin = computed(() => selectedArmor.value?.dfpMin ?? CHARACTER_ARMOR_LIMITS.dfpMin)
+  const currentArmorDfpMin = computed(() => 0)
   const currentArmorDfpMax = computed(() => selectedArmor.value?.dfpMax ?? CHARACTER_ARMOR_LIMITS.dfpMax)
-  const currentArmorEvpMin = computed(() => selectedArmor.value?.evpMin ?? CHARACTER_ARMOR_LIMITS.evpMin)
+  const currentArmorEvpMin = computed(() => 0)
   const currentArmorEvpMax = computed(() => selectedArmor.value?.evpMax ?? CHARACTER_ARMOR_LIMITS.evpMax)
-  const currentShieldDfpMin = computed(() => selectedShield.value?.dfpMin ?? CHARACTER_SHIELD_LIMITS.dfpMin)
+  const currentShieldDfpMin = computed(() => 0)
   const currentShieldDfpMax = computed(() => selectedShield.value?.dfpMax ?? CHARACTER_SHIELD_LIMITS.dfpMax)
-  const currentShieldEvpMin = computed(() => selectedShield.value?.evpMin ?? CHARACTER_SHIELD_LIMITS.evpMin)
+  const currentShieldEvpMin = computed(() => 0)
   const currentShieldEvpMax = computed(() => selectedShield.value?.evpMax ?? CHARACTER_SHIELD_LIMITS.evpMax)
   const modifiedWeaponAttributeCount = computed(() => countModifiedWeaponAttributes(form.weaponAttributes))
   const currentWeaponRequirementStats = computed(() => {
@@ -341,244 +330,27 @@ export function useCharacterConfiguratorState() {
     return Math.min(maximum, Math.max(minimum, Math.trunc(value)))
   }
 
-  function applyHumarOptimizedConfig(): void {
-    form.weaponId = HUMAR_OPTIMAL_CONFIG.weaponId
-    form.grind = HUMAR_OPTIMAL_CONFIG.grind
-    form.armorId = HUMAR_OPTIMAL_CONFIG.armorId
-    form.armorDfp = HUMAR_OPTIMAL_CONFIG.armorDfp
-    form.armorEvp = HUMAR_OPTIMAL_CONFIG.armorEvp
-    form.shieldId = HUMAR_OPTIMAL_CONFIG.shieldId
-    form.shieldDfp = HUMAR_OPTIMAL_CONFIG.shieldDfp
-    form.shieldEvp = HUMAR_OPTIMAL_CONFIG.shieldEvp
-    form.magDef = HUMAR_OPTIMAL_CONFIG.magDef
-    form.magPow = HUMAR_OPTIMAL_CONFIG.magPow
-    form.magDex = HUMAR_OPTIMAL_CONFIG.magDex
-    form.magMind = HUMAR_OPTIMAL_CONFIG.magMind
-    form.materials = { ...HUMAR_OPTIMAL_CONFIG.materials }
-    form.unitSlot1Id = HUMAR_OPTIMAL_CONFIG.unitSlot1Id
-    form.unitSlot2Id = HUMAR_OPTIMAL_CONFIG.unitSlot2Id
-    form.unitSlot3Id = HUMAR_OPTIMAL_CONFIG.unitSlot3Id
-    form.unitSlot4Id = HUMAR_OPTIMAL_CONFIG.unitSlot4Id
-  }
-
-  function applyHunewearlOptimizedConfig(): void {
-    form.weaponId = HUNEWEARL_OPTIMAL_CONFIG.weaponId
-    form.grind = HUNEWEARL_OPTIMAL_CONFIG.grind
-    form.armorId = HUNEWEARL_OPTIMAL_CONFIG.armorId
-    form.armorDfp = HUNEWEARL_OPTIMAL_CONFIG.armorDfp
-    form.armorEvp = HUNEWEARL_OPTIMAL_CONFIG.armorEvp
-    form.shieldId = HUNEWEARL_OPTIMAL_CONFIG.shieldId
-    form.shieldDfp = HUNEWEARL_OPTIMAL_CONFIG.shieldDfp
-    form.shieldEvp = HUNEWEARL_OPTIMAL_CONFIG.shieldEvp
-    form.magDef = HUNEWEARL_OPTIMAL_CONFIG.magDef
-    form.magPow = HUNEWEARL_OPTIMAL_CONFIG.magPow
-    form.magDex = HUNEWEARL_OPTIMAL_CONFIG.magDex
-    form.magMind = HUNEWEARL_OPTIMAL_CONFIG.magMind
-    form.materials = { ...HUNEWEARL_OPTIMAL_CONFIG.materials }
-    form.unitSlot1Id = HUNEWEARL_OPTIMAL_CONFIG.unitSlot1Id
-    form.unitSlot2Id = HUNEWEARL_OPTIMAL_CONFIG.unitSlot2Id
-    form.unitSlot3Id = HUNEWEARL_OPTIMAL_CONFIG.unitSlot3Id
-    form.unitSlot4Id = HUNEWEARL_OPTIMAL_CONFIG.unitSlot4Id
-  }
-
-  function applyHucastOptimizedConfig(): void {
-    form.weaponId = HUCAST_OPTIMAL_CONFIG.weaponId
-    form.grind = HUCAST_OPTIMAL_CONFIG.grind
-    form.armorId = HUCAST_OPTIMAL_CONFIG.armorId
-    form.armorDfp = HUCAST_OPTIMAL_CONFIG.armorDfp
-    form.armorEvp = HUCAST_OPTIMAL_CONFIG.armorEvp
-    form.shieldId = HUCAST_OPTIMAL_CONFIG.shieldId
-    form.shieldDfp = HUCAST_OPTIMAL_CONFIG.shieldDfp
-    form.shieldEvp = HUCAST_OPTIMAL_CONFIG.shieldEvp
-    form.magDef = HUCAST_OPTIMAL_CONFIG.magDef
-    form.magPow = HUCAST_OPTIMAL_CONFIG.magPow
-    form.magDex = HUCAST_OPTIMAL_CONFIG.magDex
-    form.magMind = HUCAST_OPTIMAL_CONFIG.magMind
-    form.materials = { ...HUCAST_OPTIMAL_CONFIG.materials }
-    form.unitSlot1Id = HUCAST_OPTIMAL_CONFIG.unitSlot1Id
-    form.unitSlot2Id = HUCAST_OPTIMAL_CONFIG.unitSlot2Id
-    form.unitSlot3Id = HUCAST_OPTIMAL_CONFIG.unitSlot3Id
-    form.unitSlot4Id = HUCAST_OPTIMAL_CONFIG.unitSlot4Id
-  }
-
-  function applyHucasealOptimizedConfig(): void {
-    form.weaponId = HUCASEAL_OPTIMAL_CONFIG.weaponId
-    form.grind = HUCASEAL_OPTIMAL_CONFIG.grind
-    form.armorId = HUCASEAL_OPTIMAL_CONFIG.armorId
-    form.armorDfp = HUCASEAL_OPTIMAL_CONFIG.armorDfp
-    form.armorEvp = HUCASEAL_OPTIMAL_CONFIG.armorEvp
-    form.shieldId = HUCASEAL_OPTIMAL_CONFIG.shieldId
-    form.shieldDfp = HUCASEAL_OPTIMAL_CONFIG.shieldDfp
-    form.shieldEvp = HUCASEAL_OPTIMAL_CONFIG.shieldEvp
-    form.magDef = HUCASEAL_OPTIMAL_CONFIG.magDef
-    form.magPow = HUCASEAL_OPTIMAL_CONFIG.magPow
-    form.magDex = HUCASEAL_OPTIMAL_CONFIG.magDex
-    form.magMind = HUCASEAL_OPTIMAL_CONFIG.magMind
-    form.materials = { ...HUCASEAL_OPTIMAL_CONFIG.materials }
-    form.unitSlot1Id = HUCASEAL_OPTIMAL_CONFIG.unitSlot1Id
-    form.unitSlot2Id = HUCASEAL_OPTIMAL_CONFIG.unitSlot2Id
-    form.unitSlot3Id = HUCASEAL_OPTIMAL_CONFIG.unitSlot3Id
-    form.unitSlot4Id = HUCASEAL_OPTIMAL_CONFIG.unitSlot4Id
-  }
-
-  function applyRamarOptimizedConfig(): void {
-    form.weaponId = RAMAR_OPTIMAL_CONFIG.weaponId
-    form.grind = RAMAR_OPTIMAL_CONFIG.grind
-    form.armorId = RAMAR_OPTIMAL_CONFIG.armorId
-    form.armorDfp = RAMAR_OPTIMAL_CONFIG.armorDfp
-    form.armorEvp = RAMAR_OPTIMAL_CONFIG.armorEvp
-    form.shieldId = RAMAR_OPTIMAL_CONFIG.shieldId
-    form.shieldDfp = RAMAR_OPTIMAL_CONFIG.shieldDfp
-    form.shieldEvp = RAMAR_OPTIMAL_CONFIG.shieldEvp
-    form.magDef = RAMAR_OPTIMAL_CONFIG.magDef
-    form.magPow = RAMAR_OPTIMAL_CONFIG.magPow
-    form.magDex = RAMAR_OPTIMAL_CONFIG.magDex
-    form.magMind = RAMAR_OPTIMAL_CONFIG.magMind
-    form.materials = { ...RAMAR_OPTIMAL_CONFIG.materials }
-    form.unitSlot1Id = RAMAR_OPTIMAL_CONFIG.unitSlot1Id
-    form.unitSlot2Id = RAMAR_OPTIMAL_CONFIG.unitSlot2Id
-    form.unitSlot3Id = RAMAR_OPTIMAL_CONFIG.unitSlot3Id
-    form.unitSlot4Id = RAMAR_OPTIMAL_CONFIG.unitSlot4Id
-  }
-
-  function applyRamarlOptimizedConfig(): void {
-    form.weaponId = RAMARL_OPTIMAL_CONFIG.weaponId
-    form.grind = RAMARL_OPTIMAL_CONFIG.grind
-    form.armorId = RAMARL_OPTIMAL_CONFIG.armorId
-    form.armorDfp = RAMARL_OPTIMAL_CONFIG.armorDfp
-    form.armorEvp = RAMARL_OPTIMAL_CONFIG.armorEvp
-    form.shieldId = RAMARL_OPTIMAL_CONFIG.shieldId
-    form.shieldDfp = RAMARL_OPTIMAL_CONFIG.shieldDfp
-    form.shieldEvp = RAMARL_OPTIMAL_CONFIG.shieldEvp
-    form.magDef = RAMARL_OPTIMAL_CONFIG.magDef
-    form.magPow = RAMARL_OPTIMAL_CONFIG.magPow
-    form.magDex = RAMARL_OPTIMAL_CONFIG.magDex
-    form.magMind = RAMARL_OPTIMAL_CONFIG.magMind
-    form.materials = { ...RAMARL_OPTIMAL_CONFIG.materials }
-    form.unitSlot1Id = RAMARL_OPTIMAL_CONFIG.unitSlot1Id
-    form.unitSlot2Id = RAMARL_OPTIMAL_CONFIG.unitSlot2Id
-    form.unitSlot3Id = RAMARL_OPTIMAL_CONFIG.unitSlot3Id
-    form.unitSlot4Id = RAMARL_OPTIMAL_CONFIG.unitSlot4Id
-  }
-
-  function applyRacastOptimizedConfig(): void {
-    form.weaponId = RACAST_OPTIMAL_CONFIG.weaponId
-    form.grind = RACAST_OPTIMAL_CONFIG.grind
-    form.armorId = RACAST_OPTIMAL_CONFIG.armorId
-    form.armorDfp = RACAST_OPTIMAL_CONFIG.armorDfp
-    form.armorEvp = RACAST_OPTIMAL_CONFIG.armorEvp
-    form.shieldId = RACAST_OPTIMAL_CONFIG.shieldId
-    form.shieldDfp = RACAST_OPTIMAL_CONFIG.shieldDfp
-    form.shieldEvp = RACAST_OPTIMAL_CONFIG.shieldEvp
-    form.magDef = RACAST_OPTIMAL_CONFIG.magDef
-    form.magPow = RACAST_OPTIMAL_CONFIG.magPow
-    form.magDex = RACAST_OPTIMAL_CONFIG.magDex
-    form.magMind = RACAST_OPTIMAL_CONFIG.magMind
-    form.materials = { ...RACAST_OPTIMAL_CONFIG.materials }
-    form.unitSlot1Id = RACAST_OPTIMAL_CONFIG.unitSlot1Id
-    form.unitSlot2Id = RACAST_OPTIMAL_CONFIG.unitSlot2Id
-    form.unitSlot3Id = RACAST_OPTIMAL_CONFIG.unitSlot3Id
-    form.unitSlot4Id = RACAST_OPTIMAL_CONFIG.unitSlot4Id
-  }
-
-  function applyRacasealOptimizedConfig(): void {
-    form.weaponId = RACASEAL_OPTIMAL_CONFIG.weaponId
-    form.grind = RACASEAL_OPTIMAL_CONFIG.grind
-    form.armorId = RACASEAL_OPTIMAL_CONFIG.armorId
-    form.armorDfp = RACASEAL_OPTIMAL_CONFIG.armorDfp
-    form.armorEvp = RACASEAL_OPTIMAL_CONFIG.armorEvp
-    form.shieldId = RACASEAL_OPTIMAL_CONFIG.shieldId
-    form.shieldDfp = RACASEAL_OPTIMAL_CONFIG.shieldDfp
-    form.shieldEvp = RACASEAL_OPTIMAL_CONFIG.shieldEvp
-    form.magDef = RACASEAL_OPTIMAL_CONFIG.magDef
-    form.magPow = RACASEAL_OPTIMAL_CONFIG.magPow
-    form.magDex = RACASEAL_OPTIMAL_CONFIG.magDex
-    form.magMind = RACASEAL_OPTIMAL_CONFIG.magMind
-    form.materials = { ...RACASEAL_OPTIMAL_CONFIG.materials }
-    form.unitSlot1Id = RACASEAL_OPTIMAL_CONFIG.unitSlot1Id
-    form.unitSlot2Id = RACASEAL_OPTIMAL_CONFIG.unitSlot2Id
-    form.unitSlot3Id = RACASEAL_OPTIMAL_CONFIG.unitSlot3Id
-    form.unitSlot4Id = RACASEAL_OPTIMAL_CONFIG.unitSlot4Id
-  }
-
-  function applyFomarOptimizedConfig(): void {
-    form.weaponId = FOMAR_OPTIMAL_CONFIG.weaponId
-    form.grind = FOMAR_OPTIMAL_CONFIG.grind
-    form.armorId = FOMAR_OPTIMAL_CONFIG.armorId
-    form.armorDfp = FOMAR_OPTIMAL_CONFIG.armorDfp
-    form.armorEvp = FOMAR_OPTIMAL_CONFIG.armorEvp
-    form.shieldId = FOMAR_OPTIMAL_CONFIG.shieldId
-    form.shieldDfp = FOMAR_OPTIMAL_CONFIG.shieldDfp
-    form.shieldEvp = FOMAR_OPTIMAL_CONFIG.shieldEvp
-    form.magDef = FOMAR_OPTIMAL_CONFIG.magDef
-    form.magPow = FOMAR_OPTIMAL_CONFIG.magPow
-    form.magDex = FOMAR_OPTIMAL_CONFIG.magDex
-    form.magMind = FOMAR_OPTIMAL_CONFIG.magMind
-    form.materials = { ...FOMAR_OPTIMAL_CONFIG.materials }
-    form.unitSlot1Id = FOMAR_OPTIMAL_CONFIG.unitSlot1Id
-    form.unitSlot2Id = FOMAR_OPTIMAL_CONFIG.unitSlot2Id
-    form.unitSlot3Id = FOMAR_OPTIMAL_CONFIG.unitSlot3Id
-    form.unitSlot4Id = FOMAR_OPTIMAL_CONFIG.unitSlot4Id
-  }
-
-  function applyFomarlOptimizedConfig(): void {
-    form.weaponId = FOMARL_OPTIMAL_CONFIG.weaponId
-    form.grind = FOMARL_OPTIMAL_CONFIG.grind
-    form.armorId = FOMARL_OPTIMAL_CONFIG.armorId
-    form.armorDfp = FOMARL_OPTIMAL_CONFIG.armorDfp
-    form.armorEvp = FOMARL_OPTIMAL_CONFIG.armorEvp
-    form.shieldId = FOMARL_OPTIMAL_CONFIG.shieldId
-    form.shieldDfp = FOMARL_OPTIMAL_CONFIG.shieldDfp
-    form.shieldEvp = FOMARL_OPTIMAL_CONFIG.shieldEvp
-    form.magDef = FOMARL_OPTIMAL_CONFIG.magDef
-    form.magPow = FOMARL_OPTIMAL_CONFIG.magPow
-    form.magDex = FOMARL_OPTIMAL_CONFIG.magDex
-    form.magMind = FOMARL_OPTIMAL_CONFIG.magMind
-    form.materials = { ...FOMARL_OPTIMAL_CONFIG.materials }
-    form.unitSlot1Id = FOMARL_OPTIMAL_CONFIG.unitSlot1Id
-    form.unitSlot2Id = FOMARL_OPTIMAL_CONFIG.unitSlot2Id
-    form.unitSlot3Id = FOMARL_OPTIMAL_CONFIG.unitSlot3Id
-    form.unitSlot4Id = FOMARL_OPTIMAL_CONFIG.unitSlot4Id
-  }
-
-  function applyFonewmOptimizedConfig(): void {
-    form.weaponId = FONEWM_OPTIMAL_CONFIG.weaponId
-    form.grind = FONEWM_OPTIMAL_CONFIG.grind
-    form.armorId = FONEWM_OPTIMAL_CONFIG.armorId
-    form.armorDfp = FONEWM_OPTIMAL_CONFIG.armorDfp
-    form.armorEvp = FONEWM_OPTIMAL_CONFIG.armorEvp
-    form.shieldId = FONEWM_OPTIMAL_CONFIG.shieldId
-    form.shieldDfp = FONEWM_OPTIMAL_CONFIG.shieldDfp
-    form.shieldEvp = FONEWM_OPTIMAL_CONFIG.shieldEvp
-    form.magDef = FONEWM_OPTIMAL_CONFIG.magDef
-    form.magPow = FONEWM_OPTIMAL_CONFIG.magPow
-    form.magDex = FONEWM_OPTIMAL_CONFIG.magDex
-    form.magMind = FONEWM_OPTIMAL_CONFIG.magMind
-    form.materials = { ...FONEWM_OPTIMAL_CONFIG.materials }
-    form.unitSlot1Id = FONEWM_OPTIMAL_CONFIG.unitSlot1Id
-    form.unitSlot2Id = FONEWM_OPTIMAL_CONFIG.unitSlot2Id
-    form.unitSlot3Id = FONEWM_OPTIMAL_CONFIG.unitSlot3Id
-    form.unitSlot4Id = FONEWM_OPTIMAL_CONFIG.unitSlot4Id
-  }
-
-  function applyFonewearlOptimizedConfig(): void {
-    form.weaponId = FONEWEARL_OPTIMAL_CONFIG.weaponId
-    form.grind = FONEWEARL_OPTIMAL_CONFIG.grind
-    form.armorId = FONEWEARL_OPTIMAL_CONFIG.armorId
-    form.armorDfp = FONEWEARL_OPTIMAL_CONFIG.armorDfp
-    form.armorEvp = FONEWEARL_OPTIMAL_CONFIG.armorEvp
-    form.shieldId = FONEWEARL_OPTIMAL_CONFIG.shieldId
-    form.shieldDfp = FONEWEARL_OPTIMAL_CONFIG.shieldDfp
-    form.shieldEvp = FONEWEARL_OPTIMAL_CONFIG.shieldEvp
-    form.magDef = FONEWEARL_OPTIMAL_CONFIG.magDef
-    form.magPow = FONEWEARL_OPTIMAL_CONFIG.magPow
-    form.magDex = FONEWEARL_OPTIMAL_CONFIG.magDex
-    form.magMind = FONEWEARL_OPTIMAL_CONFIG.magMind
-    form.materials = { ...FONEWEARL_OPTIMAL_CONFIG.materials }
-    form.unitSlot1Id = FONEWEARL_OPTIMAL_CONFIG.unitSlot1Id
-    form.unitSlot2Id = FONEWEARL_OPTIMAL_CONFIG.unitSlot2Id
-    form.unitSlot3Id = FONEWEARL_OPTIMAL_CONFIG.unitSlot3Id
-    form.unitSlot4Id = FONEWEARL_OPTIMAL_CONFIG.unitSlot4Id
+  function applyBaseConfigForClass(classId: CharacterConfigInput['classId']): void {
+    const baseConfig = createBaseCharacterConfigForClass(classId)
+    form.weaponId = baseConfig.weaponId
+    form.specialId = baseConfig.specialId
+    form.grind = baseConfig.grind
+    form.weaponAttributes = { ...baseConfig.weaponAttributes }
+    form.armorId = baseConfig.armorId
+    form.armorDfp = baseConfig.armorDfp
+    form.armorEvp = baseConfig.armorEvp
+    form.shieldId = baseConfig.shieldId
+    form.shieldDfp = baseConfig.shieldDfp
+    form.shieldEvp = baseConfig.shieldEvp
+    form.magDef = baseConfig.magDef
+    form.magPow = baseConfig.magPow
+    form.magDex = baseConfig.magDex
+    form.magMind = baseConfig.magMind
+    form.materials = { ...baseConfig.materials }
+    form.unitSlot1Id = baseConfig.unitSlot1Id
+    form.unitSlot2Id = baseConfig.unitSlot2Id
+    form.unitSlot3Id = baseConfig.unitSlot3Id
+    form.unitSlot4Id = baseConfig.unitSlot4Id
   }
 
   watch(
@@ -591,17 +363,17 @@ export function useCharacterConfiguratorState() {
   watch(
     () => [form.armorId, form.armorDfp, form.armorEvp] as const,
     ([armorId, armorDfp, armorEvp]) => {
-      const { dfpMin, dfpMax, evpMin, evpMax } = getArmorBounds(armorId)
+      const { dfpMax, evpMax } = getArmorBounds(armorId)
 
       if (armorId !== previousArmorId) {
         previousArmorId = armorId
-        form.armorDfp = dfpMax
-        form.armorEvp = evpMax
+        form.armorDfp = 0
+        form.armorEvp = 0
         return
       }
 
-      form.armorDfp = Math.min(dfpMax, Math.max(dfpMin, Number.isFinite(armorDfp) ? armorDfp : dfpMin))
-      form.armorEvp = Math.min(evpMax, Math.max(evpMin, Number.isFinite(armorEvp) ? armorEvp : evpMin))
+      form.armorDfp = Math.min(dfpMax, Math.max(0, Number.isFinite(armorDfp) ? armorDfp : 0))
+      form.armorEvp = Math.min(evpMax, Math.max(0, Number.isFinite(armorEvp) ? armorEvp : 0))
     },
     { immediate: true },
   )
@@ -624,17 +396,17 @@ export function useCharacterConfiguratorState() {
   watch(
     () => [form.shieldId, form.shieldDfp, form.shieldEvp] as const,
     ([shieldId, shieldDfp, shieldEvp]) => {
-      const { dfpMin, dfpMax, evpMin, evpMax } = getShieldBounds(shieldId)
+      const { dfpMax, evpMax } = getShieldBounds(shieldId)
 
       if (shieldId !== previousShieldId) {
         previousShieldId = shieldId
-        form.shieldDfp = dfpMax
-        form.shieldEvp = evpMax
+        form.shieldDfp = 0
+        form.shieldEvp = 0
         return
       }
 
-      form.shieldDfp = Math.min(dfpMax, Math.max(dfpMin, Number.isFinite(shieldDfp) ? shieldDfp : dfpMin))
-      form.shieldEvp = Math.min(evpMax, Math.max(evpMin, Number.isFinite(shieldEvp) ? shieldEvp : evpMin))
+      form.shieldDfp = Math.min(dfpMax, Math.max(0, Number.isFinite(shieldDfp) ? shieldDfp : 0))
+      form.shieldEvp = Math.min(evpMax, Math.max(0, Number.isFinite(shieldEvp) ? shieldEvp : 0))
     },
     { immediate: true },
   )
@@ -841,7 +613,9 @@ export function useCharacterConfiguratorState() {
 
       if (weaponId !== previousWeaponId) {
         previousWeaponId = weaponId
-        form.grind = maxGrind
+        form.grind = 0
+        form.weaponAttributes.enemy = 0
+        form.weaponAttributes.hit = 0
         return
       }
 
@@ -960,52 +734,8 @@ export function useCharacterConfiguratorState() {
   watch(
     () => form.classId,
     (classId, previousClassId) => {
-      if (classId === 'humar' && previousClassId !== undefined && previousClassId !== classId) {
-        applyHumarOptimizedConfig()
-      }
-
-      if (classId === 'hunewearl' && previousClassId !== undefined && previousClassId !== classId) {
-        applyHunewearlOptimizedConfig()
-      }
-
-      if (classId === 'hucast' && previousClassId !== undefined && previousClassId !== classId) {
-        applyHucastOptimizedConfig()
-      }
-
-      if (classId === 'hucaseal' && previousClassId !== undefined && previousClassId !== classId) {
-        applyHucasealOptimizedConfig()
-      }
-
-      if (classId === 'ramar' && previousClassId !== undefined && previousClassId !== classId) {
-        applyRamarOptimizedConfig()
-      }
-
-      if (classId === 'ramarl' && previousClassId !== undefined && previousClassId !== classId) {
-        applyRamarlOptimizedConfig()
-      }
-
-      if (classId === 'racast' && previousClassId !== undefined && previousClassId !== classId) {
-        applyRacastOptimizedConfig()
-      }
-
-      if (classId === 'racaseal' && previousClassId !== undefined && previousClassId !== classId) {
-        applyRacasealOptimizedConfig()
-      }
-
-      if (classId === 'fomar' && previousClassId !== undefined && previousClassId !== classId) {
-        applyFomarOptimizedConfig()
-      }
-
-      if (classId === 'fomarl' && previousClassId !== undefined && previousClassId !== classId) {
-        applyFomarlOptimizedConfig()
-      }
-
-      if (classId === 'fonewm' && previousClassId !== undefined && previousClassId !== classId) {
-        applyFonewmOptimizedConfig()
-      }
-
-      if (classId === 'fonewearl' && previousClassId !== undefined && previousClassId !== classId) {
-        applyFonewearlOptimizedConfig()
+      if (previousClassId !== undefined && previousClassId !== classId) {
+        applyBaseConfigForClass(classId)
       }
 
       void loadClassStats(classId)
@@ -1031,14 +761,12 @@ export function useCharacterConfiguratorState() {
       form.specialId = DEFAULT_CHARACTER_CONFIG.specialId
       form.grind = DEFAULT_CHARACTER_CONFIG.grind
       form.armorId = DEFAULT_CHARACTER_CONFIG.armorId
-      const armorBounds = getArmorBounds(form.armorId)
-      form.armorDfp = armorBounds.dfpMax
-      form.armorEvp = armorBounds.evpMax
+      form.armorDfp = 0
+      form.armorEvp = 0
       previousArmorId = form.armorId
       form.shieldId = DEFAULT_CHARACTER_CONFIG.shieldId
-      const shieldBounds = getShieldBounds(form.shieldId)
-      form.shieldDfp = shieldBounds.dfpMax
-      form.shieldEvp = shieldBounds.evpMax
+      form.shieldDfp = 0
+      form.shieldEvp = 0
       previousShieldId = form.shieldId
       form.magDef = DEFAULT_CHARACTER_CONFIG.magDef
       form.magPow = DEFAULT_CHARACTER_CONFIG.magPow
@@ -1050,54 +778,6 @@ export function useCharacterConfiguratorState() {
       form.unitSlot3Id = DEFAULT_CHARACTER_CONFIG.unitSlot3Id
       form.unitSlot4Id = DEFAULT_CHARACTER_CONFIG.unitSlot4Id
       form.weaponAttributes = { ...DEFAULT_CHARACTER_WEAPON_ATTRIBUTES }
-
-      if (form.classId === 'humar') {
-        applyHumarOptimizedConfig()
-      }
-
-      if (form.classId === 'hunewearl') {
-        applyHunewearlOptimizedConfig()
-      }
-
-      if (form.classId === 'hucast') {
-        applyHucastOptimizedConfig()
-      }
-
-      if (form.classId === 'hucaseal') {
-        applyHucasealOptimizedConfig()
-      }
-
-      if (form.classId === 'ramar') {
-        applyRamarOptimizedConfig()
-      }
-
-      if (form.classId === 'ramarl') {
-        applyRamarlOptimizedConfig()
-      }
-
-      if (form.classId === 'racast') {
-        applyRacastOptimizedConfig()
-      }
-
-      if (form.classId === 'racaseal') {
-        applyRacasealOptimizedConfig()
-      }
-
-      if (form.classId === 'fomar') {
-        applyFomarOptimizedConfig()
-      }
-
-      if (form.classId === 'fomarl') {
-        applyFomarlOptimizedConfig()
-      }
-
-      if (form.classId === 'fonewm') {
-        applyFonewmOptimizedConfig()
-      }
-
-      if (form.classId === 'fonewearl') {
-        applyFonewearlOptimizedConfig()
-      }
     } catch (error) {
       errorMessage.value = error instanceof Error ? error.message : "Impossible de joindre l'API pour charger le POC."
     } finally {
