@@ -321,10 +321,12 @@ export function useCharacterConfiguratorState() {
 
   function isArmorOptionDisabled(option: CharacterArmorOption): boolean {
     return !isCharacterOptionCompatibleWithClass(option.compatibleClasses, form.classId)
+      || option.requiredLevel > form.level
   }
 
   function isShieldOptionDisabled(option: CharacterShieldOption): boolean {
     return !isCharacterOptionCompatibleWithClass(option.compatibleClasses, form.classId)
+      || option.requiredLevel > form.level
   }
 
   function isUnitOptionDisabled(option: CharacterUnitOption): boolean {
@@ -892,7 +894,7 @@ export function useCharacterConfiguratorState() {
   )
 
   watch(
-    () => [form.classId, form.armorId] as const,
+    () => [form.classId, form.armorId, form.level] as const,
     ([, armorId]) => {
       const armor = armorOptions.value.find((entry) => entry.id === armorId)
 
@@ -906,7 +908,7 @@ export function useCharacterConfiguratorState() {
   )
 
   watch(
-    () => [form.classId, form.shieldId] as const,
+    () => [form.classId, form.shieldId, form.level] as const,
     ([, shieldId]) => {
       const shield = shieldOptions.value.find((entry) => entry.id === shieldId)
 
