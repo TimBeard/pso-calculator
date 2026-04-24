@@ -1,7 +1,14 @@
 <template>
   <section class="planner-layout">
     <section class="planner-column">
-      <PartySection :form="form" :difficulty-options="difficultyOptions" :is-one-person-mode="isOnePersonMode" @update:is-one-person-mode="isOnePersonMode = $event" />
+      <PartySection
+        :form="form"
+        :difficulty-options="difficultyOptions"
+        :is-one-person-mode="isOnePersonMode"
+        :shifta-options="shiftaOptions"
+        :zalure-options="zalureOptions"
+        @update:is-one-person-mode="isOnePersonMode = $event"
+      />
 
       <CharacterSection
         :form="form"
@@ -9,8 +16,7 @@
         :grouped-class-options="groupedClassOptions"
         :level-max="levelMax"
         :level-min="levelMin"
-        :shifta-options="shiftaOptions"
-        :zalure-options="zalureOptions"
+        @update:class-id="setActiveClass"
       />
 
       <MaterialsSection
@@ -160,6 +166,7 @@ const {
   selectedWeaponHasNoSpecial,
   selectedWeaponHasSelectableSpecial,
   selectedWeaponSpecialLabel,
+  setActiveClass,
   shieldOptions,
   shiftaOptions,
   specialOptions,

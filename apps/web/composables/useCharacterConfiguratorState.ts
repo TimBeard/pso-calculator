@@ -61,7 +61,15 @@ import {
   type ClassLevelStats,
 } from '@pso/shared'
 import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
-import { CHARACTER_CONFIG_URL_PARAM, decodeCharacterConfig, encodeCharacterConfig } from './useCharacterConfigUrlCodec'
+import {
+  CHARACTER_CONFIG_URL_PARAM,
+  createDefaultPerClassConfigs,
+  decodeCharacterConfigState,
+  encodeCharacterConfigState,
+  pickClassConfig,
+  type CharacterClassConfig,
+  type CharacterPerClassConfigs,
+} from './useCharacterConfigUrlCodec'
 
 const fallbackOptions: CharacterOptionsResponse = {
   classes: [...CHARACTER_CLASS_OPTIONS],
@@ -281,6 +289,65 @@ export function useCharacterConfiguratorState() {
   let previousArmorId = form.armorId
   let previousShieldId = form.shieldId
   let isApplyingRemoteConfig = false
+  const perClassConfigs: CharacterPerClassConfigs = createDefaultPerClassConfigs()
+
+  function captureCurrentClassConfig(): CharacterClassConfig {
+    return pickClassConfig({
+      classId: form.classId,
+      level: form.level,
+      difficulty: form.difficulty,
+      gameMode: form.gameMode,
+      attackType: form.attackType,
+      shiftaLevel: form.shiftaLevel,
+      zalureLevel: form.zalureLevel,
+      weaponId: form.weaponId,
+      specialId: form.specialId,
+      grind: form.grind,
+      weaponAttributes: { ...form.weaponAttributes },
+      armorId: form.armorId,
+      armorDfp: form.armorDfp,
+      armorEvp: form.armorEvp,
+      shieldId: form.shieldId,
+      shieldDfp: form.shieldDfp,
+      shieldEvp: form.shieldEvp,
+      magDef: form.magDef,
+      magPow: form.magPow,
+      magDex: form.magDex,
+      magMind: form.magMind,
+      materials: { ...form.materials },
+      unitSlot1Id: form.unitSlot1Id,
+      unitSlot2Id: form.unitSlot2Id,
+      unitSlot3Id: form.unitSlot3Id,
+      unitSlot4Id: form.unitSlot4Id,
+    })
+  }
+
+  function applyClassConfig(classConfig: CharacterClassConfig): void {
+    form.level = classConfig.level
+    form.attackType = classConfig.attackType
+    form.weaponId = classConfig.weaponId
+    form.specialId = classConfig.specialId
+    form.grind = classConfig.grind
+    form.weaponAttributes = { ...classConfig.weaponAttributes }
+    form.armorId = classConfig.armorId
+    form.armorDfp = classConfig.armorDfp
+    form.armorEvp = classConfig.armorEvp
+    form.shieldId = classConfig.shieldId
+    form.shieldDfp = classConfig.shieldDfp
+    form.shieldEvp = classConfig.shieldEvp
+    form.magDef = classConfig.magDef
+    form.magPow = classConfig.magPow
+    form.magDex = classConfig.magDex
+    form.magMind = classConfig.magMind
+    form.materials = { ...classConfig.materials }
+    form.unitSlot1Id = classConfig.unitSlot1Id
+    form.unitSlot2Id = classConfig.unitSlot2Id
+    form.unitSlot3Id = classConfig.unitSlot3Id
+    form.unitSlot4Id = classConfig.unitSlot4Id
+    previousWeaponId = classConfig.weaponId
+    previousArmorId = classConfig.armorId
+    previousShieldId = classConfig.shieldId
+  }
 
   function getArmorBounds(armorId: CharacterConfigInput['armorId']) {
     const armor = armorOptions.value.find((entry) => entry.id === armorId)
@@ -344,25 +411,7 @@ export function useCharacterConfiguratorState() {
 
   function applyBaseConfigForClass(classId: CharacterConfigInput['classId']): void {
     const baseConfig = createBaseCharacterConfigForClass(classId)
-    form.weaponId = baseConfig.weaponId
-    form.specialId = baseConfig.specialId
-    form.grind = baseConfig.grind
-    form.weaponAttributes = { ...baseConfig.weaponAttributes }
-    form.armorId = baseConfig.armorId
-    form.armorDfp = baseConfig.armorDfp
-    form.armorEvp = baseConfig.armorEvp
-    form.shieldId = baseConfig.shieldId
-    form.shieldDfp = baseConfig.shieldDfp
-    form.shieldEvp = baseConfig.shieldEvp
-    form.magDef = baseConfig.magDef
-    form.magPow = baseConfig.magPow
-    form.magDex = baseConfig.magDex
-    form.magMind = baseConfig.magMind
-    form.materials = { ...baseConfig.materials }
-    form.unitSlot1Id = baseConfig.unitSlot1Id
-    form.unitSlot2Id = baseConfig.unitSlot2Id
-    form.unitSlot3Id = baseConfig.unitSlot3Id
-    form.unitSlot4Id = baseConfig.unitSlot4Id
+    applyClassConfig(pickClassConfig(baseConfig))
   }
 
   watch(
@@ -745,15 +794,32 @@ export function useCharacterConfiguratorState() {
 
   watch(
     () => form.classId,
-    (classId, previousClassId) => {
-      if (!isApplyingRemoteConfig && previousClassId !== undefined && previousClassId !== classId) {
-        applyBaseConfigForClass(classId)
-      }
-
+    (classId) => {
       void loadClassStats(classId)
     },
     { immediate: true },
   )
+
+  function setActiveClass(classId: CharacterConfigInput['classId']): void {
+    if (classId === form.classId) {
+      return
+    }
+
+    // 1. Snapshot the outgoing class config from the *current* form state
+    //    BEFORE any other watcher mutates it as a side effect of changing classId.
+    perClassConfigs[form.classId] = captureCurrentClassConfig()
+
+    // 2. Atomically apply the incoming class config (defaults if untouched).
+    const incoming = perClassConfigs[classId]
+    isApplyingRemoteConfig = true
+    form.classId = classId
+    applyClassConfig(incoming)
+
+    void nextTick().then(() => {
+      isApplyingRemoteConfig = false
+      syncConfigToUrl()
+    })
+  }
 
   async function loadConfigurator(): Promise<void> {
     isLoading.value = true
@@ -791,10 +857,10 @@ export function useCharacterConfiguratorState() {
       form.unitSlot4Id = DEFAULT_CHARACTER_CONFIG.unitSlot4Id
       form.weaponAttributes = { ...DEFAULT_CHARACTER_WEAPON_ATTRIBUTES }
 
-      const sharedConfig = readSharedConfigFromUrl()
+      const sharedState = readStateFromUrl()
 
-      if (sharedConfig) {
-        applyCharacterConfig(sharedConfig)
+      if (sharedState) {
+        applyCharacterConfigState(sharedState)
       }
     } catch (error) {
       errorMessage.value = error instanceof Error ? error.message : "Impossible de joindre l'API pour charger le POC."
@@ -805,7 +871,7 @@ export function useCharacterConfiguratorState() {
     }
   }
 
-  function readSharedConfigFromUrl(): CharacterConfigInput | null {
+  function readStateFromUrl(): ReturnType<typeof decodeCharacterConfigState> {
     if (typeof window === 'undefined') {
       return null
     }
@@ -816,39 +882,28 @@ export function useCharacterConfiguratorState() {
       return null
     }
 
-    return decodeCharacterConfig(encoded)
+    return decodeCharacterConfigState(encoded)
   }
 
-  function applyCharacterConfig(config: CharacterConfigInput): void {
-    form.classId = config.classId
-    form.level = config.level
-    form.difficulty = config.difficulty
-    form.gameMode = config.gameMode
-    form.attackType = config.attackType
-    form.shiftaLevel = config.shiftaLevel
-    form.zalureLevel = config.zalureLevel
-    form.weaponId = config.weaponId
-    form.specialId = config.specialId
-    form.grind = config.grind
-    form.weaponAttributes = { ...config.weaponAttributes }
-    form.armorId = config.armorId
-    form.armorDfp = config.armorDfp
-    form.armorEvp = config.armorEvp
-    previousArmorId = config.armorId
-    form.shieldId = config.shieldId
-    form.shieldDfp = config.shieldDfp
-    form.shieldEvp = config.shieldEvp
-    previousShieldId = config.shieldId
-    form.magDef = config.magDef
-    form.magPow = config.magPow
-    form.magDex = config.magDex
-    form.magMind = config.magMind
-    form.materials = { ...config.materials }
-    form.unitSlot1Id = config.unitSlot1Id
-    form.unitSlot2Id = config.unitSlot2Id
-    form.unitSlot3Id = config.unitSlot3Id
-    form.unitSlot4Id = config.unitSlot4Id
-    previousWeaponId = config.weaponId
+  function applyCharacterConfigState(state: NonNullable<ReturnType<typeof decodeCharacterConfigState>>): void {
+    // Restore the per-class memory so subsequent class changes can rehydrate them.
+    for (const [classId, classConfig] of Object.entries(state.perClass) as Array<[
+      CharacterConfigInput['classId'],
+      CharacterClassConfig,
+    ]>) {
+      perClassConfigs[classId] = {
+        ...classConfig,
+        weaponAttributes: { ...classConfig.weaponAttributes },
+        materials: { ...classConfig.materials },
+      }
+    }
+
+    form.shiftaLevel = state.shiftaLevel
+    form.zalureLevel = state.zalureLevel
+    form.difficulty = state.difficulty
+    form.gameMode = state.gameMode
+    form.classId = state.activeClassId
+    applyClassConfig(perClassConfigs[state.activeClassId])
   }
 
   function syncConfigToUrl(): void {
@@ -856,34 +911,17 @@ export function useCharacterConfiguratorState() {
       return
     }
 
+    // Always include the active class' current snapshot in the per-class map.
+    perClassConfigs[form.classId] = captureCurrentClassConfig()
+
     const url = new URL(window.location.href)
-    const encoded = encodeCharacterConfig({
-      classId: form.classId,
-      level: form.level,
-      difficulty: form.difficulty,
-      gameMode: form.gameMode,
-      attackType: form.attackType,
+    const encoded = encodeCharacterConfigState({
+      activeClassId: form.classId,
       shiftaLevel: form.shiftaLevel,
       zalureLevel: form.zalureLevel,
-      weaponId: form.weaponId,
-      specialId: form.specialId,
-      grind: form.grind,
-      weaponAttributes: { ...form.weaponAttributes },
-      armorId: form.armorId,
-      armorDfp: form.armorDfp,
-      armorEvp: form.armorEvp,
-      shieldId: form.shieldId,
-      shieldDfp: form.shieldDfp,
-      shieldEvp: form.shieldEvp,
-      magDef: form.magDef,
-      magPow: form.magPow,
-      magDex: form.magDex,
-      magMind: form.magMind,
-      materials: { ...form.materials },
-      unitSlot1Id: form.unitSlot1Id,
-      unitSlot2Id: form.unitSlot2Id,
-      unitSlot3Id: form.unitSlot3Id,
-      unitSlot4Id: form.unitSlot4Id,
+      difficulty: form.difficulty,
+      gameMode: form.gameMode,
+      perClass: perClassConfigs,
     })
 
     if (url.searchParams.get(CHARACTER_CONFIG_URL_PARAM) === encoded) {
@@ -970,6 +1008,7 @@ export function useCharacterConfiguratorState() {
     selectedWeaponHasNoSpecial,
     selectedWeaponHasSelectableSpecial,
     selectedWeaponSpecialLabel,
+    setActiveClass,
     shieldOptions,
     shiftaOptions,
     specialOptions,
