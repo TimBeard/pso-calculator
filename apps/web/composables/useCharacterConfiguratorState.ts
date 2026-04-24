@@ -190,13 +190,29 @@ export function useCharacterConfiguratorState() {
   const selectedWeaponHasNoSpecial = computed(() => isCharacterWeaponSpecialNone(selectedWeaponSpecialLabel.value))
   const currentWeaponMaxGrind = computed(() => selectedWeapon.value?.maxGrind ?? 0)
   const currentArmorDfpMin = computed(() => 0)
-  const currentArmorDfpMax = computed(() => selectedArmor.value?.dfpMax ?? CHARACTER_ARMOR_LIMITS.dfpMax)
+  const currentArmorDfpMax = computed(() => {
+    const armor = selectedArmor.value
+    if (!armor) return CHARACTER_ARMOR_LIMITS.dfpMax - CHARACTER_ARMOR_LIMITS.dfpMin
+    return Math.max(0, armor.dfpMax - armor.dfpMin)
+  })
   const currentArmorEvpMin = computed(() => 0)
-  const currentArmorEvpMax = computed(() => selectedArmor.value?.evpMax ?? CHARACTER_ARMOR_LIMITS.evpMax)
+  const currentArmorEvpMax = computed(() => {
+    const armor = selectedArmor.value
+    if (!armor) return CHARACTER_ARMOR_LIMITS.evpMax - CHARACTER_ARMOR_LIMITS.evpMin
+    return Math.max(0, armor.evpMax - armor.evpMin)
+  })
   const currentShieldDfpMin = computed(() => 0)
-  const currentShieldDfpMax = computed(() => selectedShield.value?.dfpMax ?? CHARACTER_SHIELD_LIMITS.dfpMax)
+  const currentShieldDfpMax = computed(() => {
+    const shield = selectedShield.value
+    if (!shield) return CHARACTER_SHIELD_LIMITS.dfpMax - CHARACTER_SHIELD_LIMITS.dfpMin
+    return Math.max(0, shield.dfpMax - shield.dfpMin)
+  })
   const currentShieldEvpMin = computed(() => 0)
-  const currentShieldEvpMax = computed(() => selectedShield.value?.evpMax ?? CHARACTER_SHIELD_LIMITS.evpMax)
+  const currentShieldEvpMax = computed(() => {
+    const shield = selectedShield.value
+    if (!shield) return CHARACTER_SHIELD_LIMITS.evpMax - CHARACTER_SHIELD_LIMITS.evpMin
+    return Math.max(0, shield.evpMax - shield.evpMin)
+  })
   const modifiedWeaponAttributeCount = computed(() => countModifiedWeaponAttributes(form.weaponAttributes))
   const currentWeaponRequirementStats = computed(() => {
     const rawAtp = (currentLevelStats.value?.atp ?? 0)
@@ -351,23 +367,35 @@ export function useCharacterConfiguratorState() {
 
   function getArmorBounds(armorId: CharacterConfigInput['armorId']) {
     const armor = armorOptions.value.find((entry) => entry.id === armorId)
+    const dfpMin = armor?.dfpMin ?? CHARACTER_ARMOR_LIMITS.dfpMin
+    const dfpMax = armor?.dfpMax ?? CHARACTER_ARMOR_LIMITS.dfpMax
+    const evpMin = armor?.evpMin ?? CHARACTER_ARMOR_LIMITS.evpMin
+    const evpMax = armor?.evpMax ?? CHARACTER_ARMOR_LIMITS.evpMax
 
     return {
-      dfpMin: armor?.dfpMin ?? CHARACTER_ARMOR_LIMITS.dfpMin,
-      dfpMax: armor?.dfpMax ?? CHARACTER_ARMOR_LIMITS.dfpMax,
-      evpMin: armor?.evpMin ?? CHARACTER_ARMOR_LIMITS.evpMin,
-      evpMax: armor?.evpMax ?? CHARACTER_ARMOR_LIMITS.evpMax,
+      dfpMin,
+      dfpMax,
+      evpMin,
+      evpMax,
+      dfpVarianceMax: Math.max(0, dfpMax - dfpMin),
+      evpVarianceMax: Math.max(0, evpMax - evpMin),
     }
   }
 
   function getShieldBounds(shieldId: CharacterConfigInput['shieldId']) {
     const shield = shieldOptions.value.find((entry) => entry.id === shieldId)
+    const dfpMin = shield?.dfpMin ?? CHARACTER_SHIELD_LIMITS.dfpMin
+    const dfpMax = shield?.dfpMax ?? CHARACTER_SHIELD_LIMITS.dfpMax
+    const evpMin = shield?.evpMin ?? CHARACTER_SHIELD_LIMITS.evpMin
+    const evpMax = shield?.evpMax ?? CHARACTER_SHIELD_LIMITS.evpMax
 
     return {
-      dfpMin: shield?.dfpMin ?? CHARACTER_SHIELD_LIMITS.dfpMin,
-      dfpMax: shield?.dfpMax ?? CHARACTER_SHIELD_LIMITS.dfpMax,
-      evpMin: shield?.evpMin ?? CHARACTER_SHIELD_LIMITS.evpMin,
-      evpMax: shield?.evpMax ?? CHARACTER_SHIELD_LIMITS.evpMax,
+      dfpMin,
+      dfpMax,
+      evpMin,
+      evpMax,
+      dfpVarianceMax: Math.max(0, dfpMax - dfpMin),
+      evpVarianceMax: Math.max(0, evpMax - evpMin),
     }
   }
 
@@ -424,7 +452,7 @@ export function useCharacterConfiguratorState() {
   watch(
     () => [form.armorId, form.armorDfp, form.armorEvp] as const,
     ([armorId, armorDfp, armorEvp]) => {
-      const { dfpMax, evpMax } = getArmorBounds(armorId)
+      const { dfpVarianceMax, evpVarianceMax } = getArmorBounds(armorId)
 
       if (armorId !== previousArmorId) {
         previousArmorId = armorId
@@ -433,8 +461,8 @@ export function useCharacterConfiguratorState() {
         return
       }
 
-      form.armorDfp = Math.min(dfpMax, Math.max(0, Number.isFinite(armorDfp) ? armorDfp : 0))
-      form.armorEvp = Math.min(evpMax, Math.max(0, Number.isFinite(armorEvp) ? armorEvp : 0))
+      form.armorDfp = Math.min(dfpVarianceMax, Math.max(0, Number.isFinite(armorDfp) ? armorDfp : 0))
+      form.armorEvp = Math.min(evpVarianceMax, Math.max(0, Number.isFinite(armorEvp) ? armorEvp : 0))
     },
     { immediate: true },
   )
@@ -457,7 +485,7 @@ export function useCharacterConfiguratorState() {
   watch(
     () => [form.shieldId, form.shieldDfp, form.shieldEvp] as const,
     ([shieldId, shieldDfp, shieldEvp]) => {
-      const { dfpMax, evpMax } = getShieldBounds(shieldId)
+      const { dfpVarianceMax, evpVarianceMax } = getShieldBounds(shieldId)
 
       if (shieldId !== previousShieldId) {
         previousShieldId = shieldId
@@ -466,8 +494,8 @@ export function useCharacterConfiguratorState() {
         return
       }
 
-      form.shieldDfp = Math.min(dfpMax, Math.max(0, Number.isFinite(shieldDfp) ? shieldDfp : 0))
-      form.shieldEvp = Math.min(evpMax, Math.max(0, Number.isFinite(shieldEvp) ? shieldEvp : 0))
+      form.shieldDfp = Math.min(dfpVarianceMax, Math.max(0, Number.isFinite(shieldDfp) ? shieldDfp : 0))
+      form.shieldEvp = Math.min(evpVarianceMax, Math.max(0, Number.isFinite(shieldEvp) ? shieldEvp : 0))
     },
     { immediate: true },
   )

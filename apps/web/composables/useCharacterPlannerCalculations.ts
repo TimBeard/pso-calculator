@@ -105,8 +105,8 @@ export function useCharacterPlannerCalculations(state: CharacterConfiguratorStat
     }
 
     return sumBonuses(state.selectedArmor.value.bonuses, selectedArmorConditionalEffects.value.bonuses, {
-      dfp: state.form.armorDfp,
-      evp: state.form.armorEvp,
+      dfp: state.selectedArmor.value.dfpMin + state.form.armorDfp,
+      evp: state.selectedArmor.value.evpMin + state.form.armorEvp,
     })
   })
   const selectedShieldBonuses = computed(() => {
@@ -115,8 +115,8 @@ export function useCharacterPlannerCalculations(state: CharacterConfiguratorStat
     }
 
     return sumBonuses(state.selectedShield.value.bonuses, selectedShieldConditionalEffects.value.bonuses, {
-      dfp: state.form.shieldDfp,
-      evp: state.form.shieldEvp,
+      dfp: state.selectedShield.value.dfpMin + state.form.shieldDfp,
+      evp: state.selectedShield.value.evpMin + state.form.shieldEvp,
     })
   })
   const magBonuses = computed(() => {

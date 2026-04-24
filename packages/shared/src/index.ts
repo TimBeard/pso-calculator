@@ -4813,11 +4813,11 @@ export const characterConfigSchema = z
     grind: z.number().int().min(0).max(250),
     weaponAttributes: characterWeaponAttributesSchema,
     armorId: z.string().refine((value) => CHARACTER_ARMOR_VALUE_IDS.includes(value), 'Unknown armor selection.'),
-    armorDfp: z.number().int().min(CHARACTER_ARMOR_LIMITS.dfpMin).max(CHARACTER_ARMOR_LIMITS.dfpMax),
-    armorEvp: z.number().int().min(CHARACTER_ARMOR_LIMITS.evpMin).max(CHARACTER_ARMOR_LIMITS.evpMax),
+    armorDfp: z.number().int().min(0).max(Math.max(0, CHARACTER_ARMOR_LIMITS.dfpMax - CHARACTER_ARMOR_LIMITS.dfpMin)),
+    armorEvp: z.number().int().min(0).max(Math.max(0, CHARACTER_ARMOR_LIMITS.evpMax - CHARACTER_ARMOR_LIMITS.evpMin)),
     shieldId: z.string().refine((value) => CHARACTER_SHIELD_VALUE_IDS.includes(value), 'Unknown shield selection.'),
-    shieldDfp: z.number().int().min(CHARACTER_SHIELD_LIMITS.dfpMin).max(CHARACTER_SHIELD_LIMITS.dfpMax),
-    shieldEvp: z.number().int().min(CHARACTER_SHIELD_LIMITS.evpMin).max(CHARACTER_SHIELD_LIMITS.evpMax),
+    shieldDfp: z.number().int().min(0).max(Math.max(0, CHARACTER_SHIELD_LIMITS.dfpMax - CHARACTER_SHIELD_LIMITS.dfpMin)),
+    shieldEvp: z.number().int().min(0).max(Math.max(0, CHARACTER_SHIELD_LIMITS.evpMax - CHARACTER_SHIELD_LIMITS.evpMin)),
     magDef: z.number().int().min(CHARACTER_MAG_LIMITS.defMin).max(CHARACTER_MAG_LIMITS.defMax),
     magPow: z.number().int().min(CHARACTER_MAG_LIMITS.powMin).max(CHARACTER_MAG_LIMITS.powMax),
     magDex: z.number().int().min(CHARACTER_MAG_LIMITS.dexMin).max(CHARACTER_MAG_LIMITS.dexMax),
@@ -4916,19 +4916,19 @@ export const characterConfigSchema = z
       })
     }
 
-    if (value.armorDfp < selectedArmor.dfpMin || value.armorDfp > selectedArmor.dfpMax) {
+    if (value.armorDfp < 0 || value.armorDfp > selectedArmor.dfpMax - selectedArmor.dfpMin) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['armorDfp'],
-        message: `Armor DFP must stay between ${selectedArmor.dfpMin} and ${selectedArmor.dfpMax} for ${selectedArmor.label}.`,
+        message: `Armor DFP variance must stay between 0 and ${selectedArmor.dfpMax - selectedArmor.dfpMin} for ${selectedArmor.label}.`,
       })
     }
 
-    if (value.armorEvp < selectedArmor.evpMin || value.armorEvp > selectedArmor.evpMax) {
+    if (value.armorEvp < 0 || value.armorEvp > selectedArmor.evpMax - selectedArmor.evpMin) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['armorEvp'],
-        message: `Armor EVP must stay between ${selectedArmor.evpMin} and ${selectedArmor.evpMax} for ${selectedArmor.label}.`,
+        message: `Armor EVP variance must stay between 0 and ${selectedArmor.evpMax - selectedArmor.evpMin} for ${selectedArmor.label}.`,
       })
     }
 
@@ -4949,19 +4949,19 @@ export const characterConfigSchema = z
       })
     }
 
-    if (value.shieldDfp < selectedShield.dfpMin || value.shieldDfp > selectedShield.dfpMax) {
+    if (value.shieldDfp < 0 || value.shieldDfp > selectedShield.dfpMax - selectedShield.dfpMin) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['shieldDfp'],
-        message: `Shield DFP must stay between ${selectedShield.dfpMin} and ${selectedShield.dfpMax} for ${selectedShield.label}.`,
+        message: `Shield DFP variance must stay between 0 and ${selectedShield.dfpMax - selectedShield.dfpMin} for ${selectedShield.label}.`,
       })
     }
 
-    if (value.shieldEvp < selectedShield.evpMin || value.shieldEvp > selectedShield.evpMax) {
+    if (value.shieldEvp < 0 || value.shieldEvp > selectedShield.evpMax - selectedShield.evpMin) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['shieldEvp'],
-        message: `Shield EVP must stay between ${selectedShield.evpMin} and ${selectedShield.evpMax} for ${selectedShield.label}.`,
+        message: `Shield EVP variance must stay between 0 and ${selectedShield.evpMax - selectedShield.evpMin} for ${selectedShield.label}.`,
       })
     }
 
