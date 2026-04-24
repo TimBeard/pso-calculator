@@ -1,5 +1,5 @@
 <template>
-  <PlannerCard kicker="Données calculées" title="Stats" panel-class="stats-panel" header-class="stats-panel__head">
+  <div class="stats-panel">
     <div v-if="hasStatsForLevel" class="stats-block">
       <ul class="stats-list">
         <li v-for="row in statRows" :key="row.label" class="stats-row">
@@ -34,12 +34,10 @@
     <div v-else class="stats-empty">
       Aucune progression n'est encore disponible en base pour cette classe.
     </div>
-  </PlannerCard>
+  </div>
 </template>
 
 <script setup lang="ts">
-import PlannerCard from '~/components/ui/PlannerCard.vue'
-
 defineProps<{
   hasSeededStats: boolean
   hasStatsForLevel: boolean

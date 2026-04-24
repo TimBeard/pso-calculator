@@ -41,6 +41,7 @@ import {
   isCharacterWeaponSpecialSelectable,
   isCharacterOptionCompatibleWithClass,
   isAndroidClassId,
+  OPTIMAL_CHARACTER_CONFIGS,
   resolveConditionalEffects,
   sortCharacterWeaponOptions,
   snapWeaponAttributeValue,
@@ -440,6 +441,35 @@ export function useCharacterConfiguratorState() {
   function applyBaseConfigForClass(classId: CharacterConfigInput['classId']): void {
     const baseConfig = createBaseCharacterConfigForClass(classId)
     applyClassConfig(pickClassConfig(baseConfig))
+  }
+
+  function applyOptimalConfigForClass(classId: CharacterConfigInput['classId']): void {
+    const optimal = OPTIMAL_CHARACTER_CONFIGS[classId]
+    applyClassConfig({
+      ...optimal,
+      weaponAttributes: { ...optimal.weaponAttributes },
+      materials: { ...optimal.materials },
+    })
+  }
+
+  function resetCurrentClass(): void {
+    isApplyingRemoteConfig = true
+    applyBaseConfigForClass(form.classId)
+    perClassConfigs[form.classId] = captureCurrentClassConfig()
+    void nextTick().then(() => {
+      isApplyingRemoteConfig = false
+      syncConfigToUrl()
+    })
+  }
+
+  function optimizeCurrentClass(): void {
+    isApplyingRemoteConfig = true
+    applyOptimalConfigForClass(form.classId)
+    perClassConfigs[form.classId] = captureCurrentClassConfig()
+    void nextTick().then(() => {
+      isApplyingRemoteConfig = false
+      syncConfigToUrl()
+    })
   }
 
   watch(
@@ -1037,6 +1067,8 @@ export function useCharacterConfiguratorState() {
     selectedWeaponHasSelectableSpecial,
     selectedWeaponSpecialLabel,
     setActiveClass,
+    resetCurrentClass,
+    optimizeCurrentClass,
     shieldOptions,
     shiftaOptions,
     specialOptions,

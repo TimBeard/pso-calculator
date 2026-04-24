@@ -343,12 +343,12 @@ const labelPositions = computed(() => {
 
 .stats-radar__polygon--max {
   fill: none;
-  stroke: #c92a2a;
+  stroke: var(--danger);
 }
 
 .stats-radar__polygon--base {
-  fill: rgba(47, 158, 68, 0.45);
-  stroke: #2f9e44;
+  fill: color-mix(in srgb, var(--success) 35%, transparent);
+  stroke: var(--success);
 }
 
 .stats-radar__label {

@@ -77,6 +77,15 @@
     </section>
 
     <section class="planner-column stats-column">
+      <div class="planner-actions">
+        <button type="button" class="planner-action planner-action--success" @click="optimizeCurrentClass">
+          Optimiser
+        </button>
+        <button type="button" class="planner-action planner-action--danger" @click="resetCurrentClass">
+          Reset
+        </button>
+      </div>
+
       <DamagePanel
         :average-damage-rows="averageDamageRows"
         :format-intermediate-value="formatIntermediateValue"
@@ -93,21 +102,28 @@
         :stat-rows="statRows"
       />
 
-      <StatsPanel
-        :has-seeded-stats="hasSeededStats"
-        :has-stats-for-level="hasStatsForLevel"
-        :is-stats-loading="isStatsLoading"
-        :level="form.level"
-        :selected-class-label="selectedClass?.label"
-        :stat-rows="statRows"
-        :stats-error-message="statsErrorMessage"
-      />
+      <button type="button" class="planner-action planner-action--brand" @click="isStatsModalOpen = true">
+        Plus de détails
+      </button>
     </section>
   </section>
+
+  <Modal v-model:open="isStatsModalOpen" kicker="Données calculées" title="Stats">
+    <StatsPanel
+      :has-seeded-stats="hasSeededStats"
+      :has-stats-for-level="hasStatsForLevel"
+      :is-stats-loading="isStatsLoading"
+      :level="form.level"
+      :selected-class-label="selectedClass?.label"
+      :stat-rows="statRows"
+      :stats-error-message="statsErrorMessage"
+    />
+  </Modal>
 </template>
 
 <script setup lang="ts">
 import { CHARACTER_MAG_LIMITS, CHARACTER_WEAPON_ATTRIBUTE_LIMITS } from '@pso/shared'
+import { ref } from 'vue'
 import ArmorSection from '~/components/character-configurator/ArmorSection.vue'
 import CharacterSection from '~/components/character-configurator/CharacterSection.vue'
 import DamagePanel from '~/components/character-configurator/DamagePanel.vue'
@@ -119,6 +135,7 @@ import StatsPanel from '~/components/character-configurator/StatsPanel.vue'
 import StatsRadarChart from '~/components/character-configurator/StatsRadarChart.vue'
 import UnitsSection from '~/components/character-configurator/UnitsSection.vue'
 import WeaponSection from '~/components/character-configurator/WeaponSection.vue'
+import Modal from '~/components/ui/Modal.vue'
 import { useCharacterConfiguratorState } from '~/composables/useCharacterConfiguratorState'
 import { useCharacterPlannerCalculations } from '~/composables/useCharacterPlannerCalculations'
 import { usePlannerFormatting } from '~/composables/usePlannerFormatting'
@@ -167,6 +184,8 @@ const {
   selectedWeaponHasSelectableSpecial,
   selectedWeaponSpecialLabel,
   setActiveClass,
+  resetCurrentClass,
+  optimizeCurrentClass,
   shieldOptions,
   shiftaOptions,
   specialOptions,
@@ -181,4 +200,6 @@ const attributeMin = CHARACTER_WEAPON_ATTRIBUTE_LIMITS.min
 const attributeMax = CHARACTER_WEAPON_ATTRIBUTE_LIMITS.max
 const attributeStep = CHARACTER_WEAPON_ATTRIBUTE_LIMITS.step
 const magLimits = CHARACTER_MAG_LIMITS
+
+const isStatsModalOpen = ref(false)
 </script>

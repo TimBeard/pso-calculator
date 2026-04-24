@@ -4015,6 +4015,8 @@ export function createBaseCharacterConfigForClass(classId: CharacterClassId): Ch
 
 export const DEFAULT_CHARACTER_CONFIG: CharacterConfigInput = createBaseCharacterConfigForClass('humar')
 
+export { OPTIMAL_CHARACTER_CONFIGS, type OptimalCharacterClassConfig } from './optimalCharacterConfigs.js'
+
 const weaponAttributeSchema = z
   .number()
   .int()
